@@ -1,0 +1,11 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+    "metadata": {
+        "type": "Notebook",
+        "displayName": "seed_landing"
+    },
+    "config": {
+        "version": "2.0",
+        "logicalId": "fe9e42ec-a259-46b1-8e3b-60982c6be3a5"
+    }
+}

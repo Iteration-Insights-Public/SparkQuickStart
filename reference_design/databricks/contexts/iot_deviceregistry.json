@@ -1,0 +1,47 @@
+{
+  "global_context": {
+    "id": "iot_deviceregistry",
+    "entity_name": "IoT_DeviceRegistry",
+    "source_system": "IoT",
+    "target_table_path": "${catalog}.${bronze_schema}.iot_deviceregistry",
+    "staging_table_path": "${catalog}.${stage_schema}.iot_deviceregistry"
+  },
+  "dqd_context": {
+    "source_kind": "delta",
+    "source_identifier": "${catalog}.${landing_schema}.iot_deviceregistry",
+    "transformations": [
+      {
+        "name": "scdRowKey",
+        "expression": {
+          "cast": {
+            "expression": {
+              "column": "device_id"
+            },
+            "data_type": "string"
+          }
+        }
+      }
+    ]
+  },
+  "hwm_context": {
+    "hwm_column_name": "modified_at",
+    "hwm_value": null
+  },
+  "scd_context": {
+    "scd_type": "scd2",
+    "load_type": "Incremental",
+    "business_key_column": "scdRowKey",
+    "row_key_column": "scdRowKey"
+  },
+  "runtime_context": {
+    "correlation_id": "${job_run_id}",
+    "pipeline_name": "load_iot",
+    "application_name": "spark_quick_start_dab_reference",
+    "serverless": false
+  },
+  "logging_context": {
+    "logging_level": "INFO",
+    "log_file_name": "iot_deviceregistry",
+    "log_file_dir": "/Volumes/${catalog}/${control_schema}/${logs_volume}/${run_date}"
+  }
+}

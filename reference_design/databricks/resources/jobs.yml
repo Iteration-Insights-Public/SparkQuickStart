@@ -1,0 +1,194 @@
+# Four jobs on the same single-node job cluster, each task with the library's wheel attached.
+#   seed_landing  landing tables from the uploaded Delta folders, all or those in `tables`;
+#                 scripts/deploy.sh runs it after each upload.
+#   load_bronze   the four AdventureWorks loads (Full), chained: a failed load stops the ones
+#                 after it.
+#   load_iot      seeds the IoT landing table, then loads it (Incremental), on its own, so a
+#                 round of scripts/demo_changes.sh is one cluster and does not rerun the other four.
+#   demo          the whole first load on one cluster: seed every landing table, then the four
+#                 AdventureWorks loads and the IoT load, chained.
+# Job parameters reach every notebook task as widgets; each load task adds its context file.
+resources:
+  jobs:
+    seed_landing:
+      name: ${var.schema_prefix}seed_landing
+      max_concurrent_runs: 1
+      job_clusters:
+        - job_cluster_key: single_node
+          new_cluster: ${var.single_node_cluster}
+      parameters:
+        - {name: catalog, default: "${var.catalog}"}
+        - {name: landing_schema, default: "${resources.schemas.landing.name}"}
+        - {name: raw_volume, default: "${resources.volumes.raw.name}"}
+        - {name: control_schema, default: "${resources.schemas.control.name}"}
+        # Raw folder names to seed, such as IoT_DeviceRegistry, separated by commas,
+        # semicolons or spaces; empty: all.
+        - {name: tables, default: ""}
+      tasks:
+        - task_key: seed_landing
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/seed_landing.py
+
+    load_bronze:
+      name: ${var.schema_prefix}load_bronze
+      max_concurrent_runs: 1
+      job_clusters:
+        - job_cluster_key: single_node
+          new_cluster: ${var.single_node_cluster}
+      parameters:
+        - {name: catalog, default: "${var.catalog}"}
+        - {name: landing_schema, default: "${resources.schemas.landing.name}"}
+        - {name: bronze_schema, default: "${resources.schemas.bronze.name}"}
+        - {name: stage_schema, default: "${resources.schemas.stage.name}"}
+        - {name: control_schema, default: "${resources.schemas.control.name}"}
+        - {name: logs_volume, default: "${resources.volumes.logs.name}"}
+        # The day the run started, so a run that crosses midnight logs to one folder.
+        - {name: run_date, default: "{{job.start_time.iso_date}}"}
+        - {name: job_run_id, default: "{{job.run_id}}"}
+      tasks:
+        - task_key: person_person
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/person_person.json
+        - task_key: person_personphone
+          depends_on: [{task_key: person_person}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/person_personphone.json
+        - task_key: sales_salesorderheader
+          depends_on: [{task_key: person_personphone}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/sales_salesorderheader.json
+        - task_key: sales_salesorderdetail
+          depends_on: [{task_key: sales_salesorderheader}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/sales_salesorderdetail.json
+
+    load_iot:
+      name: ${var.schema_prefix}load_iot
+      max_concurrent_runs: 1
+      job_clusters:
+        - job_cluster_key: single_node
+          new_cluster: ${var.single_node_cluster}
+      parameters:
+        - {name: catalog, default: "${var.catalog}"}
+        - {name: landing_schema, default: "${resources.schemas.landing.name}"}
+        - {name: bronze_schema, default: "${resources.schemas.bronze.name}"}
+        - {name: stage_schema, default: "${resources.schemas.stage.name}"}
+        - {name: control_schema, default: "${resources.schemas.control.name}"}
+        - {name: logs_volume, default: "${resources.volumes.logs.name}"}
+        - {name: run_date, default: "{{job.start_time.iso_date}}"}
+        - {name: job_run_id, default: "{{job.run_id}}"}
+        - {name: raw_volume, default: "${resources.volumes.raw.name}"}
+        # Read by seed_iot only: the landing folder it seeds.
+        - {name: tables, default: "IoT_DeviceRegistry"}
+      tasks:
+        # The raw volume's IoT folder, as the last upload left it, into the landing table.
+        - task_key: seed_iot
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/seed_landing.py
+        # Incremental: load_entity reads the last successful run's watermark from load_runs.
+        - task_key: iot_deviceregistry
+          depends_on: [{task_key: seed_iot}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/iot_deviceregistry.json
+
+    demo:
+      name: ${var.schema_prefix}demo
+      max_concurrent_runs: 1
+      job_clusters:
+        - job_cluster_key: single_node
+          new_cluster: ${var.single_node_cluster}
+      parameters:
+        - {name: catalog, default: "${var.catalog}"}
+        - {name: landing_schema, default: "${resources.schemas.landing.name}"}
+        - {name: bronze_schema, default: "${resources.schemas.bronze.name}"}
+        - {name: stage_schema, default: "${resources.schemas.stage.name}"}
+        - {name: control_schema, default: "${resources.schemas.control.name}"}
+        - {name: logs_volume, default: "${resources.volumes.logs.name}"}
+        - {name: run_date, default: "{{job.start_time.iso_date}}"}
+        - {name: job_run_id, default: "{{job.run_id}}"}
+        - {name: raw_volume, default: "${resources.volumes.raw.name}"}
+        # Empty: seed every landing folder in the raw volume.
+        - {name: tables, default: ""}
+      tasks:
+        - task_key: seed_landing
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/seed_landing.py
+        - task_key: person_person
+          depends_on: [{task_key: seed_landing}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/person_person.json
+        - task_key: person_personphone
+          depends_on: [{task_key: person_person}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/person_personphone.json
+        - task_key: sales_salesorderheader
+          depends_on: [{task_key: person_personphone}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/sales_salesorderheader.json
+        - task_key: sales_salesorderdetail
+          depends_on: [{task_key: sales_salesorderheader}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/sales_salesorderdetail.json
+        - task_key: iot_deviceregistry
+          depends_on: [{task_key: sales_salesorderdetail}]
+          job_cluster_key: single_node
+          libraries:
+            - whl: ../../../build/dab_wheel/*.whl
+          notebook_task:
+            notebook_path: ../src/load_entity.py
+            base_parameters:
+              context_file: ${workspace.file_path}/contexts/iot_deviceregistry.json

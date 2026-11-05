@@ -1,0 +1,69 @@
+# Schemas and volumes. The deployer owns them; the run-as service principal gets what the
+# jobs need. USE CATALOG on the catalog itself is granted outside the bundle.
+# The tables are created by the jobs, so the service principal owns them, and owning a
+# schema does not let the deployer read them: the deployer is granted SELECT on each schema.
+resources:
+  schemas:
+    landing:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}landing
+      comment: Source tables, seeded from the repository's data/ folder.
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [USE_SCHEMA, CREATE_TABLE, SELECT, MODIFY]
+        - principal: ${workspace.current_user.userName}
+          privileges: [USE_SCHEMA, SELECT]
+    bronze:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}bronze
+      comment: SCD2 history of the landing tables.
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [USE_SCHEMA, CREATE_TABLE, SELECT, MODIFY]
+        - principal: ${workspace.current_user.userName}
+          privileges: [USE_SCHEMA, SELECT]
+    silver:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}silver
+      comment: Reserved for later; nothing writes here yet.
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [USE_SCHEMA, CREATE_TABLE, SELECT, MODIFY]
+        - principal: ${workspace.current_user.userName}
+          privileges: [USE_SCHEMA, SELECT]
+    stage:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}stage
+      comment: Scratch tables the library writes beside a load (staging_table_path).
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [USE_SCHEMA, CREATE_TABLE, SELECT, MODIFY]
+        - principal: ${workspace.current_user.userName}
+          privileges: [USE_SCHEMA, SELECT]
+    control:
+      catalog_name: ${var.catalog}
+      name: ${var.schema_prefix}control
+      comment: Run records (load_runs) and run logs.
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [USE_SCHEMA, CREATE_TABLE, SELECT, MODIFY]
+        - principal: ${workspace.current_user.userName}
+          privileges: [USE_SCHEMA, SELECT]
+
+  volumes:
+    raw:
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.landing.name}
+      name: raw
+      comment: The Delta folders scripts/deploy.sh uploads; seed_landing reads them.
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [READ_VOLUME]
+    logs:
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.control.name}
+      name: logs
+      comment: Run logs, one folder per day (YYYY-MM-DD).
+      grants:
+        - principal: ${var.run_as_sp}
+          privileges: [READ_VOLUME, WRITE_VOLUME]

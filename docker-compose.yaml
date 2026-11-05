@@ -1,0 +1,18 @@
+services:
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./test-results:/reports
+    environment:
+      PYSPARK_PYTHON: python
+      PYSPARK_DRIVER_PYTHON: python
+      SPARK_LOCAL_IP: 127.0.0.1
+      SQS_FAIL_ON_SKIP: "1"
+    # The same three runs as CI's "Run pytest in container" step, loadfile as there: the unit
+    # run is the coverage gate (fail_under), the other two take --no-cov. Reports for the
+    # unit run only, since coverage answers to the unit suite alone.
+    command: [ "bash", "-lc", "python -m pip install -e . || true && pytest tests/unit -n auto --dist loadfile -rs --maxfail=1 --disable-warnings --junitxml=/reports/pytest-unit.xml --cov=src --cov-report=xml:/reports/coverage.xml && pytest tests/integration -n auto --dist loadfile --no-cov -rs --maxfail=1 --disable-warnings --junitxml=/reports/pytest-integration.xml && pytest tests/architecture --no-cov -rs --maxfail=1 --disable-warnings --junitxml=/reports/pytest-architecture.xml" ]

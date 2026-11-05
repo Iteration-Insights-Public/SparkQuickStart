@@ -1,0 +1,11 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+    "metadata": {
+        "type": "Environment",
+        "displayName": "env_quickstart"
+    },
+    "config": {
+        "version": "2.0",
+        "logicalId": "d8ed079d-f1ab-4838-9c70-4a380e5e2cb0"
+    }
+}

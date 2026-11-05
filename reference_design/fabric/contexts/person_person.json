@@ -1,0 +1,43 @@
+{
+  "global_context": {
+    "id": "person_person",
+    "entity_name": "Person_Person",
+    "source_system": "AdventureWorks",
+    "target_table_path": "bronze.person_person",
+    "staging_table_path": "stage.person_person"
+  },
+  "dqd_context": {
+    "source_kind": "delta",
+    "source_identifier": "landing.person_person",
+    "transformations": [
+      {
+        "name": "scdRowKey",
+        "expression": {
+          "cast": {
+            "expression": {
+              "column": "BusinessEntityID"
+            },
+            "data_type": "string"
+          }
+        }
+      }
+    ]
+  },
+  "scd_context": {
+    "scd_type": "scd2",
+    "load_type": "Full",
+    "business_key_column": "scdRowKey",
+    "row_key_column": "scdRowKey"
+  },
+  "runtime_context": {
+    "correlation_id": "${job_run_id}",
+    "pipeline_name": "load_bronze",
+    "application_name": "spark_quick_start_fabric_reference",
+    "serverless": false
+  },
+  "logging_context": {
+    "logging_level": "INFO",
+    "log_file_name": "person_person",
+    "log_file_dir": "/lakehouse/default/Files/logs/${run_date}"
+  }
+}

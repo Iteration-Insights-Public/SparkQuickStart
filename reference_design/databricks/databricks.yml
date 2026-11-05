@@ -1,0 +1,90 @@
+# Databricks Asset Bundle: the spark_quick_start reference design on Azure Databricks.
+#
+# Experimental. Loads the repository's data/Person_*, data/Sales_* and data/IoT_DeviceRegistry_delta Delta tables
+# into a landing schema, then into bronze as SCD2 through a DQD: the four AdventureWorks tables
+# Full, one after another (load_bronze), and the IoT device registry incrementally on its
+# modified_at watermark (load_iot). The demo job runs the whole first load on one cluster;
+# scripts/demo_changes.sh runs a round of IoT changes. Deploy and seed with scripts/deploy.sh;
+# README.md next to this file says how. The catalog must already exist.
+#
+# Every variable below can also be set in the environment as BUNDLE_VAR_<name>, such as
+# BUNDLE_VAR_catalog; a --var on the command line wins over it.
+bundle:
+  name: spark_quick_start_reference
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: An existing Unity Catalog catalog; the bundle creates schemas in it, never the catalog.
+    default: main
+  run_as_sp:
+    description: >-
+      Application ID (a UUID, not the display name) of the service principal the jobs run as.
+      The deployer needs the Service Principal User role on it.
+  schema_prefix:
+    description: Prefix of every schema the bundle creates, so a deployment does not collide with another.
+  node_type:
+    description: >-
+      Azure VM type of the single-node job cluster. Its family needs core quota in the
+      workspace's region; the dev subscription has none for Dds_v5, so Dds_v4.
+    default: Standard_D4ds_v4
+  spark_version:
+    description: Databricks Runtime; the library needs Python 3.11, so DBR 15.4 LTS or later.
+    default: 15.4.x-scala2.12
+  python:
+    description: >-
+      The local Python that builds the wheel. scripts/deploy.sh passes the first of python3
+      and python that runs: on Windows, python3 is often the Microsoft Store placeholder.
+    default: python3
+  single_node_cluster:
+    description: The job cluster both jobs run on, the smallest that runs the library.
+    type: complex
+    default:
+      spark_version: ${var.spark_version}
+      node_type_id: ${var.node_type}
+      num_workers: 0
+      data_security_mode: SINGLE_USER
+      single_user_name: ${var.run_as_sp}
+      spark_conf:
+        spark.databricks.cluster.profile: singleNode
+        spark.master: local[*]
+        # The library writes UTC timestamps; keep the session's reading of them the same.
+        spark.sql.session.timeZone: UTC
+      custom_tags:
+        ResourceClass: SingleNode
+
+artifacts:
+  spark_quick_start:
+    type: whl
+    path: ../..
+    # Its own output folder, emptied first, so the wheel glob in resources/jobs.yml matches
+    # exactly one file, whatever older builds left in dist/.
+    build: rm -rf build/dab_wheel && ${var.python} -m pip wheel --no-deps --wheel-dir build/dab_wheel .
+    files:
+      - source: ../../build/dab_wheel/*.whl
+
+permissions:
+  # The deployer keeps managing what they deploy.
+  - level: CAN_MANAGE
+    user_name: ${workspace.current_user.userName}
+  # The run-as service principal reads the bundle's notebooks, context files and wheel.
+  - level: CAN_VIEW
+    service_principal_name: ${var.run_as_sp}
+
+run_as:
+  service_principal_name: ${var.run_as_sp}
+
+targets:
+  dev:
+    default: true
+    # No `mode: development`: it rewrites resources for the deploying user, and how it
+    # treats a run_as other than the deployer was not established. Isolation comes from
+    # schema_prefix and the per-user root_path instead. The root stays in the deployer's home,
+    # never under /Workspace/Shared: every user can write there, and the jobs run what is
+    # there as the service principal. The top-level permissions give the principal read.
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      schema_prefix: dev_${workspace.current_user.short_name}_

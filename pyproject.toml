@@ -1,0 +1,241 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spark_quick_start"
+version = "0.4.0"
+description = "Microsoft Fabric & Databricks data engineering utilities (SCD, DQD, logging, orchestration)"
+# Exactly README.md: pyproject and the file must agree in case, or a Linux build finds no
+# readme and ships an empty long description (F45, F52). tests/architecture checks both.
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{ name = "Iteration Insights" }]
+maintainers = [{ name = "Valentyn Masyakin", email = "val.masyakin@iterationinsights.com" }]
+keywords = ["pyspark", "etl", "data-engineering", "spark", "fabric", "databricks"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Libraries",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Operating System :: OS Independent",
+]
+dependencies = []
+
+# Every range below carries an upper bound. That is a deliberate CI-stability
+# gate, not tidiness: an unbounded range lets a dependency's next major release
+# change the verdict on unchanged code, which is the same reasoning that pins
+# ruff exactly. It is also load-bearing for requirements.txt — that lock is
+# compiled from these ranges, and unbounded ones resolve to a PySpark 4 /
+# delta-spark 4 pair that the suite has never run against.
+#
+# To raise a bound: bump it, run the full suite, and land the bump together
+# with any fallout as its own change. Never widen one to make an install work.
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "pytest-cov>=5,<7",
+  # docker-compose.yaml runs the suite with `-n auto`.
+  "pytest-xdist>=3,<4",
+  # Pinned exactly, matching .github/workflows/pr-tests-and-automerge.yaml.
+  # A ruff release could change the verdict on unchanged code.
+  "ruff==0.16.4",
+  # Pinned exactly, like ruff (F35): mypy-baseline.txt is recorded against 2.3.1
+  # and scripts/mypy_baseline.py compares against that environment, so a mypy
+  # release could otherwise change the gate's verdict on unchanged code. Keep it
+  # equal to the lock's mypy; tests/architecture/test_ci_workflows.py checks.
+  "mypy==2.3.1",
+  # Test-only: tests/architecture/test_ci_workflows.py parses .github/workflows/
+  # as YAML (F48). Nothing under src/ may import it — dual-shipping still holds.
+  "pyyaml>=6,<7",
+  # Dev-only: tests/architecture/_docs.py reads README.md and docs/ with a CommonMark
+  # parser, so a link counts only when GitHub would render it as one (F56), and
+  # scripts/check_mermaid.py finds mermaid diagrams with it (F57). Nothing under src/ may
+  # import it — dual-shipping still holds.
+  "markdown-it-py>=3,<5",
+]
+spark = [
+  "pyspark>=3.4,<4",
+]
+runtime = [
+  "pandas>=1.5.0,<3",
+  "pyarrow>=11.0.0,<21",
+]
+# [local] — delta-spark for local filesystem Delta Lake development and CI.
+# NOT included in [dev] because delta-spark pins a specific PySpark version
+# that may conflict with managed runtimes on Fabric and Databricks.
+# nbformat is required by local_notebookutils to execute .ipynb staging
+# notebooks locally (LocalAdapter.run_notebook -> _run_ipynb); without it
+# tests/unit/local/test_local_notebookutils.py importorskips 18 tests and the
+# unit-suite coverage gate drops from 86.66% to 83.50%.
+#
+# The pyspark floor is 3.5 here, not 3.4 as in [spark]: delta-spark 3.x
+# declares pyspark>=3.5.0,<3.6.0, so 3.4 was only ever satisfiable by luck of
+# resolution order.
+local = [
+  "pyspark>=3.5,<4",
+  "delta-spark>=3.0,<4",
+  "nbformat>=5,<6",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["spark_quick_start*"]
+
+# Single source of truth for pytest. A pytest.ini used to sit alongside this
+# block and won the precedence contest, so none of these options applied —
+# and because that file carried a [tool:pytest] header (which belongs in
+# setup.cfg, not pytest.ini) it supplied no settings of its own either.
+# Everything below was effectively inert until the two were merged here.
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--tb=short",
+    "--strict-markers",
+    "--durations=10",
+    # Coverage omit rules and the fail_under threshold live in [tool.coverage.*]
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+]
+markers = [
+    # Scope axis — applied automatically by tests/conftest.py from the test's
+    # directory, so the marker and the layout cannot disagree. Unit means one
+    # unit of ours under test with the rest mocked; integration means two or
+    # more wired together for real. Neither is about whether Spark is involved.
+    "unit: one unit under test (tests/unit/) — applied automatically",
+    "integration: units wired together (tests/integration/) — applied automatically",
+    "architecture: asserts on the shape of the source tree, not runtime behaviour (tests/architecture/) — applied automatically",
+    "slow: marks tests as slow (deselect with -m 'not slow')",
+    "smoke: marks tests as smoke tests",
+    "spark: needs a real SparkSession (applied automatically by tests/conftest.py to any test taking the `spark` fixture; run the fast suite with -m 'not spark')",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::FutureWarning",
+    # PySpark-specific warnings
+    "ignore:.*deprecated.*:DeprecationWarning:pyspark.*",
+    "ignore:.*UserWarning.*:UserWarning:pyspark.*",
+]
+
+[tool.ruff]
+line-length = 100
+# The floor, as requires-python, mypy and the typing standard state it (F171).
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Pinned explicitly. This section did not exist before, so the active ruleset
+# was whatever the installed ruff version happened to default to — a ruff
+# upgrade could change which rules fire, and therefore whether CI passes, with
+# no change to the code. Anything added to a future default is now opt-in.
+select = [
+    "E4", "E7", "E9",  # pycodestyle — the default subset; E501/E1/E2 whitespace
+                       # and line-length are formatter territory, not a gate
+    "F",               # pyflakes
+    "I",               # import sorting
+    "UP",              # pyupgrade
+    "B",               # bugbear
+    "C4",              # comprehensions
+    "SIM",             # simplify
+    "RUF",             # ruff-specific
+    "ISC",             # implicit str concat
+    "PERF",            # perflint
+    "DTZ",             # naive datetimes
+    "BLE",             # blind except
+]
+
+# Deferred, not dismissed. Counts are the real hit count on this tree the day
+# the gate went in. Each entry is independently removable: delete a line, fix
+# its hits, land it as its own change.
+ignore = [
+    "BLE001", # 64 — blind `except Exception`; mostly deliberate defensive guards around JVM/platform calls
+    "SIM105", # 12 — try/except/pass that could be contextlib.suppress
+    "RUF059", # 11 — unused unpacked variable
+    "RUF043", # 10 — pytest.raises(match=...) treats its argument as a regex
+    "DTZ001", # 10 — naive datetime() building fixture timestamps
+    "F841",   #  7 — unused local
+    "SIM117", #  5 — nested `with` that could be combined
+    "E741",   #  4 — ambiguous variable name (l/I/O)
+    "DTZ005", #  4 — datetime.now() without a tz
+    "SIM115", #  3 — open() outside a context manager
+    "UP007",  #  2 — Optional[X] in a runtime-evaluated position
+    "SIM103", #  2 — return the condition directly
+    "RUF015", #  2 — prefer next(iter(...)) over [0]
+    "C408",   #  2 — dict() call instead of a literal
+    "B905",   #  2 — zip() without an explicit strict=
+    "B027",   #  2 — empty method in an ABC without @abstractmethod
+    "B017",   #  2 — assertRaises(Exception) in tests
+    "SIM102", #  1 — collapsible nested if
+    "RUF003", #  1 — ambiguous unicode character in a comment
+    "RUF001", #  1 — ambiguous unicode character in a string
+    "PERF401",#  1 — manual list comprehension
+    "PERF203",#  1 — try/except inside a loop
+    "PERF102",#  1 — .items() when only values are used
+    "B024",   #  1 — abstract base class with no abstract methods
+    "B007",   #  1 — unused loop control variable
+]
+
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    # Platform-specific adapters require live Fabric/Databricks runtimes
+    "src/spark_quick_start/adapters/databricks_adapter.py",
+    "src/spark_quick_start/adapters/fabric_adapter.py",
+    # Legacy monolith — coverage tracked separately, not gated
+    "src/spark_quick_start/spark_logging/*",
+    # Delta Lake execution layer — requires live Spark+Delta session
+    "src/spark_quick_start/orchestration/load_pipeline.py",
+]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+    "raise NotImplementedError",
+]
+
+# strict = true is aspirational for now: the tree carries pre-existing errors
+# (scripts/mypy_baseline.py counts them; CLAUDE.md §9 quotes the count), so CI
+# does not run bare `mypy`. It runs scripts/mypy_baseline.py,
+# which compares against mypy-baseline.txt and fails only on NEW errors.
+#
+# ~80% of the core errors are one pattern — services (_spark/_adapter/_logger)
+# and LoadContextManager's contexts are declared `X | None` because they are
+# injected after construction, so every use reads as "possibly None". Fixing
+# that clears most of the baseline in one change; tracked in issue #34.
+#
+# To regenerate after fixing errors: python scripts/mypy_baseline.py --update
+[tool.mypy]
+python_version = "3.11"
+strict = true
+mypy_path = "src"
+
+# nbformat is an optional dependency (extras `local`), so whether mypy can see
+# it depends on how the environment was provisioned. Left alone that makes the
+# gate self-contradictory: with nbformat installed, mypy reports
+# `no-untyped-call` on the unannotated `nbformat.read` and flags the guarded
+# import's `# type: ignore` as unused; with it absent, that ignore is required.
+# No single environment could pass both `pytest tests/unit` (which needs
+# nbformat for the coverage gate) and `scripts/mypy_baseline.py`.
+#
+# `follow_imports = "skip"` types the module as Any either way, so the verdict
+# no longer depends on what happens to be installed.
+[[tool.mypy.overrides]]
+module = ["nbformat", "nbformat.*"]
+ignore_missing_imports = true
+follow_imports = "skip"

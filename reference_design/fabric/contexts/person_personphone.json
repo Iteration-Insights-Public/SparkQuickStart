@@ -1,0 +1,67 @@
+{
+  "global_context": {
+    "id": "person_personphone",
+    "entity_name": "Person_PersonPhone",
+    "source_system": "AdventureWorks",
+    "target_table_path": "bronze.person_personphone",
+    "staging_table_path": "stage.person_personphone"
+  },
+  "dqd_context": {
+    "source_kind": "delta",
+    "source_identifier": "landing.person_personphone",
+    "transformations": [
+      {
+        "name": "scdRowKey",
+        "expression": {
+          "function": "concat_ws",
+          "arguments": [
+            {
+              "literal": "~"
+            },
+            {
+              "cast": {
+                "expression": {
+                  "column": "BusinessEntityID"
+                },
+                "data_type": "string"
+              }
+            },
+            {
+              "cast": {
+                "expression": {
+                  "column": "PhoneNumber"
+                },
+                "data_type": "string"
+              }
+            },
+            {
+              "cast": {
+                "expression": {
+                  "column": "PhoneNumberTypeID"
+                },
+                "data_type": "string"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "scd_context": {
+    "scd_type": "scd2",
+    "load_type": "Full",
+    "business_key_column": "scdRowKey",
+    "row_key_column": "scdRowKey"
+  },
+  "runtime_context": {
+    "correlation_id": "${job_run_id}",
+    "pipeline_name": "load_bronze",
+    "application_name": "spark_quick_start_fabric_reference",
+    "serverless": false
+  },
+  "logging_context": {
+    "logging_level": "INFO",
+    "log_file_name": "person_personphone",
+    "log_file_dir": "/lakehouse/default/Files/logs/${run_date}"
+  }
+}

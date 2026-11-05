@@ -1,0 +1,142 @@
+# mypy baseline — pre-existing errors, recorded so CI can fail on NEW ones.
+# Regenerate with: python scripts/mypy_baseline.py --update
+# Format: <count> <file>\t<error-code>\t<message>
+#
+# Generated against the environment below. mypy's output depends on which
+# packages are importable, so regenerate under `pip install -e
+# '.[dev,spark,runtime]'` — the same extras CI installs — or the diff will
+# be dominated by environment noise rather than real changes.
+# Env: mypy=2.3.1 pyspark=1 pandas=1 pyarrow=1 delta=0
+# Total: 201
+1 src/spark_quick_start/adapters/databricks_adapter.py	no-any-return	Returning Any from function declared to return "str | None"
+1 src/spark_quick_start/adapters/databricks_adapter.py	no-any-return	Returning Any from function declared to return "str"
+1 src/spark_quick_start/adapters/fabric_adapter.py	no-any-return	Returning Any from function declared to return "dict[str, Any]"
+1 src/spark_quick_start/adapters/fabric_adapter.py	no-any-return	Returning Any from function declared to return "str | None"
+1 src/spark_quick_start/adapters/fabric_adapter.py	no-any-return	Returning Any from function declared to return "str"
+4 src/spark_quick_start/adapters/fabric_adapter.py	unused-ignore	Unused "type: ignore" comment
+1 src/spark_quick_start/adapters/platform_adapter.py	no-any-return	Returning Any from function declared to return "bool"
+1 src/spark_quick_start/adapters/platform_adapter.py	type-arg	Missing type arguments for generic type "dict"
+2 src/spark_quick_start/adapters/platform_adapter.py	type-arg	Missing type arguments for generic type "set"
+1 src/spark_quick_start/adapters/platform_adapter.py	unused-ignore	Unused "type: ignore" comment
+1 src/spark_quick_start/local_notebookutils/_notebook.py	no-any-return	Returning Any from function declared to return "str"
+1 src/spark_quick_start/logger/orchestrator_logger.py	attr-defined	Module "spark_quick_start.orchestration.context_manager" does not explicitly export attribute "LoggingContext"
+2 src/spark_quick_start/logger/orchestrator_logger.py	type-arg	Missing type arguments for generic type "frozenset"
+1 src/spark_quick_start/logger/orchestrator_logger.py	unused-ignore	Unused "type: ignore" comment
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "custom_params"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "source_system"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "staging_table_path"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "validate"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "LoggingContext | None" has no attribute "log_file_dir"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "LoggingContext | None" has no attribute "log_file_name"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "LoggingContext | None" has no attribute "logging_level"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "LoggingContext | None" has no attribute "validate"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "application_name"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "correlation_id"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "pipeline_name"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "serverless"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "validate"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "SCDContext | None" has no attribute "business_key_column"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "SCDContext | None" has no attribute "correlation_id_column"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "SCDContext | None" has no attribute "current_flag_column"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "SCDContext | None" has no attribute "deleted_flag_column"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "SCDContext | None" has no attribute "source_system_column"
+3 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "StagingContext | None" has no attribute "stages"
+1 src/spark_quick_start/orchestration/context_manager.py	union-attr	Item "None" of "StagingContext | None" has no attribute "validate"
+1 src/spark_quick_start/orchestration/delta_utils.py	type-arg	Missing type arguments for generic type "Callable"
+1 src/spark_quick_start/orchestration/load_pipeline.py	no-any-return	Returning Any from function declared to return "int"
+1 src/spark_quick_start/orchestration/models.py	type-arg	Missing type arguments for generic type "frozenset"
+1 src/spark_quick_start/orchestration/models.py	unused-ignore	Unused "type: ignore" comment
+1 src/spark_quick_start/orchestration/orchestrator.py	arg-type	Argument 1 to "from_logging_context" of "OrchestratorLogger" has incompatible type "LoggingContext | None"; expected "LoggingContext"
+1 src/spark_quick_start/orchestration/orchestrator.py	arg-type	Argument 2 to "delta_table_exists" of "PlatformAdapter" has incompatible type "str | Any | None"; expected "str"
+1 src/spark_quick_start/orchestration/orchestrator.py	arg-type	Argument 2 to "get_high_watermark" has incompatible type "str | Any | None"; expected "str"
+1 src/spark_quick_start/orchestration/orchestrator.py	no-any-return	Returning Any from function declared to return "PlatformAdapter"
+1 src/spark_quick_start/orchestration/orchestrator.py	no-untyped-def	Function is missing a type annotation for one or more parameters
+1 src/spark_quick_start/orchestration/orchestrator.py	type-arg	Missing type arguments for generic type "dict"
+1 src/spark_quick_start/orchestration/orchestrator.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "entity_name"
+1 src/spark_quick_start/orchestration/orchestrator.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "target_table_path"
+1 src/spark_quick_start/orchestration/orchestrator.py	union-attr	Item "None" of "SCDContext | None" has no attribute "effective_from_column"
+1 src/spark_quick_start/orchestration/staging_pipeline.py	no-any-return	Returning Any from function declared to return "str"
+4 src/spark_quick_start/orchestration/staging_pipeline.py	type-arg	Missing type arguments for generic type "Callable"
+1 src/spark_quick_start/orchestration/staging_pipeline.py	union-attr	Item "None" of "GlobalContext | None" has no attribute "notebook_timeout_seconds"
+1 src/spark_quick_start/orchestration/staging_pipeline.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "max_parallel_staging"
+1 src/spark_quick_start/orchestration/staging_pipeline.py	union-attr	Item "None" of "RuntimeContext | None" has no attribute "parallel_execution_enabled"
+4 src/spark_quick_start/orchestration/staging_pipeline.py	union-attr	Item "None" of "StagingContext | None" has no attribute "stages"
+2 src/spark_quick_start/orchestration/transformers/base.py	no-any-return	Returning Any from function declared to return "str | None"
+1 src/spark_quick_start/orchestration/transformers/base.py	operator	"Column" not callable
+1 src/spark_quick_start/orchestration/transformers/base.py	union-attr	Item "None" of "Any | None" has no attribute "PythonSQLUtils"
+1 src/spark_quick_start/orchestration/transformers/change_detector.py	arg-type	Argument 1 to "join" of "DataFrame" has incompatible type "DataFrame | None"; expected "DataFrame"
+2 src/spark_quick_start/orchestration/transformers/change_detector.py	index	Value of type "DataFrame | None" is not indexable
+2 src/spark_quick_start/orchestration/transformers/change_detector.py	union-attr	Item "None" of "DataFrame | None" has no attribute "columns"
+1 src/spark_quick_start/orchestration/transformers/change_detector.py	union-attr	Item "None" of "DataFrame | None" has no attribute "count"
+1 src/spark_quick_start/orchestration/transformers/change_detector.py	union-attr	Item "None" of "DataFrame | None" has no attribute "join"
+1 src/spark_quick_start/orchestration/transformers/change_detector.py	union-attr	Item "None" of "DataFrame | None" has no attribute "withColumnRenamed"
+1 src/spark_quick_start/orchestration/transformers/debug.py	arg-type	Argument 2 to "_md_table" of "DebugTransformer" has incompatible type "list[tuple[str, str, str]]"; expected "list[list[str]]"
+1 src/spark_quick_start/orchestration/transformers/debug.py	type-arg	Missing type arguments for generic type "list"
+2 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "capture_merge_statistics" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "capture_write_statistics" has incompatible type "SparkSession | None"; expected "SparkSession"
+3 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "delta_table_exists" of "PlatformAdapter" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "execute_append_only" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "execute_scd_append" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "execute_scd_merge" has incompatible type "SparkSession | None"; expected "SparkSession"
+6 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 1 to "get_high_watermark" has incompatible type "SparkSession | None"; expected "SparkSession"
+2 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 2 to "capture_merge_statistics" has incompatible type "str | None"; expected "str"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 2 to "capture_write_statistics" has incompatible type "str | None"; expected "str"
+3 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 2 to "delta_table_exists" of "PlatformAdapter" has incompatible type "str | None"; expected "str"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 2 to "execute_append_only" has incompatible type "str | None"; expected "str"
+6 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 2 to "get_high_watermark" has incompatible type "str | None"; expected "str"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 3 to "execute_scd_append" has incompatible type "str | None"; expected "str"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 3 to "execute_scd_merge" has incompatible type "str | None"; expected "str"
+6 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 3 to "get_high_watermark" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+2 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 4 to "capture_merge_statistics" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 4 to "capture_write_statistics" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 4 to "execute_append_only" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 5 to "execute_scd_append" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	arg-type	Argument 5 to "execute_scd_merge" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+3 src/spark_quick_start/orchestration/transformers/native_scd.py	override	Signature of "after_run" incompatible with supertype "spark_quick_start.orchestration.transformers.base.ProcessTransformer"
+3 src/spark_quick_start/orchestration/transformers/native_scd.py	override	Signature of "after_run" incompatible with supertype "spark_quick_start.orchestration.transformers.base._TransformerBase"
+1 src/spark_quick_start/orchestration/transformers/native_scd.py	union-attr	Item "None" of "DataFrame | None" has no attribute "columns"
+3 src/spark_quick_start/orchestration/transformers/native_scd.py	union-attr	Item "None" of "PlatformAdapter | None" has no attribute "delta_table_exists"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 1 to "NotebookExecutor" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 1 to "execute_staging_phases" has incompatible type "LoadContextManager | None"; expected "LoadContextManager"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 1 to "load_staged_dataframe" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 1 to "validate_and_merge_staging_tables" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 2 to "load_staged_dataframe" has incompatible type "str | Any | None"; expected "str"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 3 to "load_staged_dataframe" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 4 to "validate_and_merge_staging_tables" has incompatible type "str | Any | None"; expected "str"
+1 src/spark_quick_start/orchestration/transformers/staging.py	arg-type	Argument 5 to "validate_and_merge_staging_tables" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+2 src/spark_quick_start/orchestration/transformers/staging.py	union-attr	Item "None" of "GlobalContext | Any | None" has no attribute "staging_table_path"
+2 src/spark_quick_start/orchestration/transformers/staging.py	union-attr	Item "None" of "GlobalContext | Any | None" has no attribute "staging_table_schema"
+4 src/spark_quick_start/orchestration/transformers/staging.py	union-attr	Item "None" of "LoadContextManager | None" has no attribute "global_ctx"
+2 src/spark_quick_start/orchestration/transformers/target.py	arg-type	Argument 1 to "load_target_dataframe" has incompatible type "SparkSession | None"; expected "SparkSession"
+1 src/spark_quick_start/orchestration/transformers/target.py	arg-type	Argument 2 to "with_frame" of "PipelineState" has incompatible type "DataFrame | None"; expected "DataFrame"
+1 src/spark_quick_start/orchestration/transformers/target.py	arg-type	Argument 2 to "with_frame" of "PipelineState" has incompatible type "None"; expected "DataFrame"
+2 src/spark_quick_start/orchestration/transformers/target.py	arg-type	Argument 3 to "load_target_dataframe" has incompatible type "str | None"; expected "str"
+2 src/spark_quick_start/orchestration/transformers/target.py	arg-type	Argument 4 to "load_target_dataframe" has incompatible type "PlatformAdapter | None"; expected "PlatformAdapter"
+1 src/spark_quick_start/spark_logging/__init__.py	arg-type	Argument 2 to "setdefault" of "MutableMapping" has incompatible type "str | int | float | None"; expected "str"
+1 src/spark_quick_start/spark_logging/__init__.py	assignment	Incompatible types in assignment (expression has type "dict[Any, Any]", target has type "str")
+1 src/spark_quick_start/spark_logging/__init__.py	assignment	Incompatible types in assignment (expression has type "list[Any]", target has type "str")
+1 src/spark_quick_start/spark_logging/__init__.py	assignment	Incompatible types in assignment (expression has type "redirect_stderr[StringIO]", variable has type "None")
+1 src/spark_quick_start/spark_logging/__init__.py	assignment	Incompatible types in assignment (expression has type "redirect_stdout[StringIO]", variable has type "None")
+1 src/spark_quick_start/spark_logging/__init__.py	assignment	Incompatible types in assignment (expression has type "str | int | float | None", target has type "str")
+2 src/spark_quick_start/spark_logging/__init__.py	attr-defined	"None" has no attribute "__enter__"
+1 src/spark_quick_start/spark_logging/__init__.py	attr-defined	Module has no attribute "_logsession_exc_installed"
+1 src/spark_quick_start/spark_logging/__init__.py	no-any-return	Returning Any from function declared to return "dict[str, Any]"
+2 src/spark_quick_start/spark_logging/__init__.py	no-any-return	Returning Any from function declared to return "str | None"
+1 src/spark_quick_start/spark_logging/__init__.py	no-untyped-call	Call to untyped function "_now_strings" in typed context
+2 src/spark_quick_start/spark_logging/__init__.py	no-untyped-def	Function is missing a return type annotation
+4 src/spark_quick_start/spark_logging/__init__.py	no-untyped-def	Function is missing a type annotation
+2 src/spark_quick_start/spark_logging/__init__.py	no-untyped-def	Function is missing a type annotation for one or more parameters
+2 src/spark_quick_start/spark_logging/__init__.py	type-arg	Missing type arguments for generic type "frozenset"
+1 src/spark_quick_start/spark_logging/__init__.py	union-attr	Item "None" of "Formatter | None" has no attribute "datefmt"
+1 src/spark_quick_start/spark_logging/__init__.py	union-attr	Item "None" of "Formatter | None" has no attribute "formatTime"
+2 src/spark_quick_start/spark_logging/__init__.py	unused-ignore	Unused "type: ignore" comment
+3 src/spark_quick_start/spark_logging/databricks_persistence.py	no-untyped-call	Call to untyped function "_fs" in typed context
+1 src/spark_quick_start/spark_logging/databricks_persistence.py	no-untyped-call	Call to untyped function "_nb" in typed context
+2 src/spark_quick_start/spark_logging/databricks_persistence.py	no-untyped-def	Function is missing a return type annotation
+2 src/spark_quick_start/spark_logging/databricks_persistence.py	unused-ignore	Unused "type: ignore" comment
+1 src/spark_quick_start/spark_logging/fabric_persistence.py	no-any-return	Returning Any from function declared to return "str | None"
+3 src/spark_quick_start/spark_logging/fabric_persistence.py	no-untyped-call	Call to untyped function "_fs" in typed context
+1 src/spark_quick_start/spark_logging/fabric_persistence.py	no-untyped-call	Call to untyped function "_nb" in typed context
+2 src/spark_quick_start/spark_logging/fabric_persistence.py	no-untyped-def	Function is missing a return type annotation
+2 src/spark_quick_start/spark_logging/fabric_persistence.py	unused-ignore	Unused "type: ignore" comment
+1 src/spark_quick_start/spark_logging/local_persistence.py	no-any-return	Returning Any from function declared to return "str | None"
