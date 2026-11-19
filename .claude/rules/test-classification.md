@@ -43,11 +43,8 @@ marker.
 
 - `unit`, `integration` and `architecture` markers are stamped from the directory by
   `tests/conftest.py`, never by hand; the `spark` marker from the fixture list.
-- A platform-specific test goes under `unit/<platform>/` or `integration/<platform>/`, and its
-  path into `scripts/filter_platform_release.sh` in the same change.
+- A platform-specific test goes under `unit/<platform>/` or `integration/<platform>/`.
 - Nothing in `tests/` locates a repo file by climbing two or more levels from `__file__`
   (`.parent`, `.parents[k]`, `dirname`, `..`); walk up to the marker.
-- `tests/architecture/` is stripped by platform-filtered builds (both `EXCLUDE_PATHS` arrays):
-  its assertions describe the complete trunk.
 - Coverage answers to the **unit** suite alone; the integration suite blocks merge on its own.
   The commands are in `.claude/standards/tooling-and-gates.md`.

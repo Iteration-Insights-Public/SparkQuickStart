@@ -33,6 +33,7 @@ from spark_quick_start.orchestration.models import (
     PlatformContext,
     RuntimeContext,
     SCDContext,
+    SourceContext,
     StagingContext,
 )
 
@@ -55,6 +56,7 @@ class LoadContextManager:
         self.logging_ctx: LoggingContext | None = None
         self.hwm_ctx: HWMContext | None = None
         self.dqd_ctx: DQDContext | None = None
+        self.source_ctx: SourceContext | None = None
         # Never None: a load without the section has an empty one, and parse() fills both.
         self.extensions_ctx: ExtensionsContext = ExtensionsContext()
         self.platform_ctx: PlatformContext = PlatformContext()
@@ -110,6 +112,10 @@ class LoadContextManager:
                 )
             self.dqd_ctx = DQDContext(dqd_raw)
 
+        source_raw = data.get("source_context")
+        if source_raw is not None:
+            self.source_ctx = SourceContext.from_raw(source_raw)
+
         # The resolved paths, for the steps and for downstream notebooks
         self.platform_ctx = PlatformContext(
             data_storage_lakehouse_path=data_storage_path,
@@ -124,7 +130,18 @@ class LoadContextManager:
         if not self._parsed:
             raise ValueError("Load context must be parsed before validation")
         self.global_ctx.validate()
-        self.staging_ctx.validate(has_dqd=self.dqd_ctx is not None)
+        self.staging_ctx.validate(has_dqd=self.dqd_ctx is not None, has_source=self.source_ctx is not None)
+        if self.source_ctx is not None:
+            assert self.staging_ctx is not None, "parse() must have run — checked above"
+            # A source of the user's own replaces the library's two; with either beside it,
+            # which one feeds the load would depend on the code, not the context (F222).
+            others = [name for name, present in (("staging_context.stages", bool(self.staging_ctx.stages)),
+                                                 ("dqd_context", self.dqd_ctx is not None)) if present]
+            if others:
+                raise ValueError(
+                    f"source_context is set alongside {' and '.join(others)}; a load context names "
+                    "one source, so keep source_context or the other, not both."
+                )
         assert self.global_ctx is not None, "parse() must have run — checked above"
         if self.staging_ctx.stages and not self.global_ctx.staging_table_schema:
             # Each staging notebook writes its own table, `<staging_table_path>__<nb_name>`;
@@ -145,7 +162,14 @@ class LoadContextManager:
         # fail later, which is the whole defect F4 is about.
         assert self.scd_ctx is not None, "parse() must have run — checked above"
         self.scd_ctx.validate()
-        if not self.scd_ctx.is_data_vault:
+        if self.scd_ctx.scd_type == "landing" and self.hwm_ctx is None:
+            # The landing writer orders a key's rows by the watermark column (F223).
+            raise ValueError(
+                "scd_context.scd_type is 'landing', which orders each key's rows by the "
+                "watermark column, and the load context has no hwm_context; add one naming "
+                "the column."
+            )
+        if not self.scd_ctx.is_data_vault and self.scd_ctx.scd_type != "landing":
             # The close-out sentinel is the open row's effective-to: at or before the load time it
             # would make every open row look closed (F106). The Data Vault styles have no sentinel.
             sentinel = self.scd_ctx.default_max_timestamp_utc

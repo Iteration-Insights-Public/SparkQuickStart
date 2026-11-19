@@ -75,6 +75,46 @@ _PLATFORM_MAP = {
 }
 
 
+def _sources_of(source: Any) -> list[Any]:
+    """The source steps a pipeline's first step may run: both sides of a ``.set_source()`` choice."""
+    from spark_quick_start.orchestration.transformers import ConditionalSourceTransformer
+
+    if isinstance(source, ConditionalSourceTransformer):
+        return [inner for side in source.sources for inner in _sources_of(side)]
+    return [source]
+
+
+def _reset_reports(transformers: list[Any]) -> None:
+    """Set every step's reported counts and watermark back to ``None`` before a run (F234).
+
+    The provider attributes live on the step instances, and a second ``run()`` on one
+    orchestrator reuses them: unreset, a writer this run skipped would still carry the last
+    run's counts, and ``inserted is not None``, the proof that it ran (F117), would hold.
+    ``hwm_column`` is left alone: it names a column, not a result, and a step may set it in
+    ``__init__``. Both steps of a wrapper, and both sides of a ``.set_source()`` choice, are
+    reset, since either may run.
+    """
+    from spark_quick_start.orchestration.transformers import ConditionalTransformer
+    from spark_quick_start.orchestration.transformers.protocols import (
+        HWMProvider,
+        SCDMetricsProvider,
+        SourceMetricsProvider,
+    )
+
+    reported = (
+        (SCDMetricsProvider, ("inserted", "updated")),
+        (HWMProvider, ("hwm_before", "hwm_after")),
+        (SourceMetricsProvider, ("source_count", "target_count")),
+    )
+    steps = [_sources_of(t) if i == 0 else [t] for i, t in enumerate(transformers)]
+    for step in (s for group in steps for s in group):
+        inner = step._transformer if isinstance(step, ConditionalTransformer) else step
+        for protocol, names in reported:
+            if isinstance(inner, protocol):
+                for name in names:
+                    setattr(inner, name, None)
+
+
 class LoadOrchestrator:
     """Entry point for a single entity load run.
 
@@ -217,7 +257,9 @@ class LoadOrchestrator:
            counts from the SourceMetricsProvider. When no HWMProvider
            matched, the watermark is read from the target table (load
            timestamp for Data Vault, effective-from otherwise), with
-           before == after.
+           before == after. The watermark after is held at the one before
+           when the pipeline halted, or when a registered writer did not run
+           (F232).
         6. Log Spark runtime configuration (post-merge).
         7. Release every frame a step cached (PipelineState.cached), then
            finalize and persist logs — both on success and on failure.
@@ -400,6 +442,23 @@ class LoadOrchestrator:
                     except Exception:
                         pass
 
+            # F232: the caller stores hwm_value_after and reads from it next run, so it may
+            # move past the batch only when a writer wrote the batch. A halt, which any step may
+            # impose, holds it as an error does; so does a registered writer that did not run (a
+            # false .add_if()). Holding costs a re-read of the same rows; moving loses them for
+            # good. A writer that is no SCDMetricsProvider cannot be seen, and keeps the old rule.
+            if _pipeline_state.halted:
+                held_because = "the pipeline halted"
+            elif scd_tx is None and any(
+                isinstance(_unwrap(t), SCDMetricsProvider) for t in self._transformers
+            ):
+                held_because = "no registered writer ran"
+            else:
+                held_because = None
+            if held_because is not None and hwm_after != hwm_before:
+                logger.info(f"Watermark held at {hwm_before!r}, not {hwm_after!r}: {held_because}")
+                hwm_after = hwm_before
+
             # ── 12. Post-merge runtime log ───────────────────────────────────
             log_runtime(self._spark, "post-merge", logger)
 
@@ -502,6 +561,24 @@ class LoadOrchestrator:
                     "(only position 0 is valid for source transformers)."
                 )
 
+        # F222: a source that declares the source_context kind it reads is checked against the
+        # context now, both sources of a .set_source() choice included, before either runs.
+        for step in _sources_of(source):
+            kind = getattr(type(step), "source_kind", None)
+            if kind is None:
+                continue
+            if ctx.source_ctx is None:
+                raise ValueError(
+                    f"{type(step).__name__} reads source_context of kind {kind!r}, and the load "
+                    "context has no source_context; add one with that kind."
+                )
+            if ctx.source_ctx.kind != kind:
+                raise ValueError(
+                    f"{type(step).__name__} reads source_context of kind {kind!r}, and the load "
+                    f"context's source_context.kind is {ctx.source_ctx.kind!r}; compose the source "
+                    "step for this kind, or correct the kind."
+                )
+
         # F156: an SCD step under a Data Vault style is refused here, before the source runs
         # staging notebooks or reads anything. A step inside .add_if() may never run, so it is
         # left to its own check at the start of _run.
@@ -511,6 +588,11 @@ class LoadOrchestrator:
             data_vault_style = getattr(type(t), "data_vault_style", None)
             if data_vault_style is not None:
                 ctx.scd_ctx.require_data_vault_style(type(t).__name__, data_vault_style)
+            required_scd_type = getattr(type(t), "required_scd_type", None)
+            if required_scd_type is not None:
+                ctx.scd_ctx.require_scd_type(type(t).__name__, required_scd_type)
+
+        _reset_reports(self._transformers)
 
         load_ctx = LoadContext(
             global_ctx=ctx.global_ctx,
@@ -520,6 +602,7 @@ class LoadOrchestrator:
             logging_ctx=ctx.logging_ctx,
             hwm_ctx=ctx.hwm_ctx,
             dqd_ctx=ctx.dqd_ctx,
+            source_ctx=ctx.source_ctx,
             extensions_ctx=ctx.extensions_ctx,
             platform_ctx=ctx.platform_ctx,
         )
@@ -592,7 +675,7 @@ class LoadOrchestrator:
 
         Raises:
             ValueError: If the platform string is not recognised, or if its adapter
-                module is absent because this is a platform-filtered build.
+                module is absent from this copy of the library.
         """
         dotted = _PLATFORM_MAP.get(platform.lower())
         if dotted is None:
@@ -605,25 +688,24 @@ class LoadOrchestrator:
             mod = importlib.import_module(module_path)
         except ModuleNotFoundError as exc:
             # `adapters/__init__.py` degrades gracefully when an adapter file has been
-            # stripped; this path did not, and it is the only one that matters for a
-            # platform-filtered build. scripts/filter_platform_release.sh physically
-            # deletes the other platform's adapter, so a context asking for it here
-            # produced a bare "No module named
+            # removed; this path did not, and it is the only one that matters for a
+            # source copy missing an adapter file. A context asking for that platform
+            # here produced a bare "No module named
             # spark_quick_start.adapters.databricks_adapter" — true, and silent about
-            # the one cause that explains it. This is the exact scenario
+            # the cause that explains it. This is the exact scenario
             # dual-shipping.md is written for (F5).
             #
             # Re-raised as ValueError rather than a new exception type: the unknown-
             # platform case above already raises ValueError for the same class of
-            # problem — this context names a platform this build cannot serve — and a
+            # problem — this context names a platform this copy cannot serve — and a
             # caller that handles one should not have to learn a second.
             raise ValueError(
                 f"LoadOrchestrator: no adapter module for platform {platform!r} "
-                f"({module_path}). This is expected on a platform-filtered build, "
-                "where scripts/filter_platform_release.sh deletes the other platform's "
-                "adapter — a fabric-only build cannot serve platform='databricks' and "
-                "vice versa. Check the load context's platform against the build you "
-                f"deployed. Valid values for a complete build: "
+                f"({module_path}). The adapter file is missing "
+                "from this copy of the library, which happens when a source copy of "
+                "src/ was made with that file removed. Restore the file, or check the "
+                "load context's platform against the copy you deployed. Valid values "
+                "for a complete copy: "
                 f"{sorted(_PLATFORM_MAP.keys())}"
             ) from exc
         return getattr(mod, class_name)()

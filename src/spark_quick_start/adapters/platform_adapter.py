@@ -27,12 +27,13 @@ from __future__ import annotations
 import ntpath
 import re
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from pyspark.sql import DataFrame, SparkSession
+    from pyspark.sql.types import StructField
 
 # Prefixes that mark a path without a ``//``: an absolute path, ``dbfs:/x``, ``file:x``.
 # Any ``scheme://`` URI is caught by _URI_SCHEME_RE instead, so no scheme is listed here (F163).
@@ -85,6 +86,39 @@ _PROPERTY_KEY_RE = re.compile(r"spark_quick_start\.[a-z_]+")
 _UNSAFE_VALUE_RE = re.compile(r"['\\`$\x00-\x1f\x7f]")
 # A backslash is literal inside a backtick-quoted name, so Windows and UNC paths keep theirs.
 _UNSAFE_PATH_RE = re.compile(r"[`$\x00-\x1f\x7f]")
+
+
+# A column name in DDL is backtick-quoted, with a backtick doubled; `$` and control characters
+# are refused, as in every name or value this module puts into SQL text (F223's review).
+_UNSAFE_COLUMN_RE = re.compile(r"[$\x00-\x1f\x7f]")
+
+
+def _quote_column(name: str) -> str:
+    if type(name) is not str or not name or _UNSAFE_COLUMN_RE.search(name):
+        raise UnsupportedTableIdentifier(
+            f"Refusing to build SQL for unsafe column name {name!r}: it must be a non-empty string "
+            "with no `$` or control character."
+        )
+    return "`" + name.replace("`", "``") + "`"
+
+
+def _column_type(dtype: Any) -> str:
+    """*dtype* as DDL, every nested field name quoted: `simpleString()` leaves them bare."""
+    from pyspark.sql.types import ArrayType, MapType, StructType
+
+    if isinstance(dtype, StructType):
+        return "struct<" + ", ".join(f"{_quote_column(f.name)}: {_column_type(f.dataType)}" for f in dtype.fields) + ">"
+    if isinstance(dtype, ArrayType):
+        return f"array<{_column_type(dtype.elementType)}>"
+    if isinstance(dtype, MapType):
+        return f"map<{_column_type(dtype.keyType)}, {_column_type(dtype.valueType)}>"
+    return str(dtype.simpleString())
+
+
+def _add_columns_sql(identifier: str, fields: Sequence[StructField]) -> str:
+    """The `ALTER TABLE … ADD COLUMNS` statement for *fields*, every name checked and quoted."""
+    columns = ", ".join(f"{_quote_column(f.name)} {_column_type(f.dataType)}" for f in fields)
+    return f"ALTER TABLE {_table_reference(identifier)} ADD COLUMNS ({columns})"
 
 
 def _quote_delta_path(path: str) -> str:
@@ -172,6 +206,14 @@ def _is_uc_name(identifier: str) -> bool:
     return True
 
 
+def _mapped_secret(secrets: Mapping[tuple[str, str], str], scope: str, key: str) -> str:
+    """The secret for ``(scope, key)`` in an explicit mapping; a ``KeyError`` naming neither value."""
+    try:
+        return secrets[(scope, key)]
+    except KeyError:
+        raise KeyError(f"no secret {key!r} in scope {scope!r}") from None
+
+
 class PlatformAdapter(ABC):
     """Abstract adapter for platform-specific operations.
 
@@ -238,6 +280,19 @@ class PlatformAdapter(ABC):
         Args:
             value: Exit value string (typically ``ExecutionResult.to_json()``).
         """
+
+    def get_secret(self, scope: str, key: str) -> str:
+        """Return the secret *key* from *scope*, read through the platform's secret store (F221).
+
+        ``scope`` is the Key Vault URL on Fabric and the secret scope on Databricks; ``key`` is the
+        secret's name. Secrets go through the adapter (``platform-boundary`` rule 7), so a source
+        step never imports a platform SDK. No portable default exists: an adapter that does not
+        override this refuses rather than guess.
+
+        Raises:
+            NotImplementedError: naming the adapter class, when it does not override this.
+        """
+        raise NotImplementedError(f"{type(self).__name__} does not implement get_secret; override it")
 
     def get_log_persistence_adapter(self) -> Any | None:
         """Return a log persistence adapter appropriate for this platform.
@@ -547,6 +602,22 @@ class PlatformAdapter(ABC):
         literals = _property_literals(properties)
         spark.sql(f"ALTER TABLE {reference} SET TBLPROPERTIES ({literals})")
 
+    def add_delta_columns(self, spark: SparkSession, identifier: str, fields: Sequence[StructField]) -> None:
+        """Add *fields* to the Delta table as nullable columns, through `ALTER TABLE … ADD COLUMNS`.
+
+        Metadata only: no data file is rewritten, and the table's existing rows read NULL in the
+        new columns. The landing writer calls it for a source column the table lacks (F223). By
+        catalog name or path, quoted as `set_table_properties` quotes it; a column name is
+        backtick-quoted, nested field names included. Portable; no adapter overrides it.
+
+        Raises:
+            UnsupportedTableIdentifier: for an identifier or a column name, at any depth, that no
+                SQL can be built for safely: a `$` or a control character.
+        """
+        if not fields:
+            return
+        spark.sql(_add_columns_sql(identifier, fields))
+
     def resolve_delta_table(self, spark: SparkSession, identifier: str) -> Any:
         """Return a ``DeltaTable`` instance for *identifier*."""
         if DeltaTable is None:
@@ -597,8 +668,13 @@ class MockPlatformAdapter(PlatformAdapter):
         existing_tables: set | None = None,
         non_empty_paths: set[str] | None = None,
         table_properties: dict[str, dict[str, str]] | None = None,
+        *,
+        secrets: Mapping[tuple[str, str], str] | None = None,
     ) -> None:
         self._results: dict[str, str] = notebook_results or {}
+        self._secrets: dict[tuple[str, str], str] = dict(secrets or {})
+        self.get_secret_calls: list[tuple[str, str]] = []
+        self.add_delta_columns_calls: list[tuple[str, list[str]]] = []
         self._current_nb_name = current_nb_name
         self._raise_on_delete = raise_on_delete
         self._delta_read_result = delta_read_result
@@ -621,6 +697,11 @@ class MockPlatformAdapter(PlatformAdapter):
             k: dict(v) for k, v in (table_properties or {}).items()}
         self.get_table_properties_calls: list[str] = []
         self.set_table_properties_calls: list[tuple[str, dict[str, str]]] = []
+
+    def get_secret(self, scope: str, key: str) -> str:
+        """Return the mapped secret; record ``(scope, key)``, never the value."""
+        self.get_secret_calls.append((scope, key))
+        return _mapped_secret(self._secrets, scope, key)
 
     def _default_success(self) -> str:
         # Import here to avoid a circular dependency at module load time.
@@ -730,6 +811,11 @@ class MockPlatformAdapter(PlatformAdapter):
         _property_literals(properties)
         self.set_table_properties_calls.append((identifier, dict(properties)))
         self._table_properties.setdefault(identifier, {}).update(properties)
+
+    def add_delta_columns(self, spark: SparkSession, identifier: str, fields: Sequence[StructField]) -> None:
+        """Refuse what the default refuses; record the identifier and the column names; change nothing."""
+        _add_columns_sql(identifier, fields)
+        self.add_delta_columns_calls.append((identifier, [f.name for f in fields]))
 
     def resolve_delta_table(self, spark: SparkSession, identifier: str) -> Any:
         from unittest.mock import MagicMock  # deferred — test-only dependency

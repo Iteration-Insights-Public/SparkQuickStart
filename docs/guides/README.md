@@ -17,9 +17,10 @@ Task-oriented how-to, for someone using or extending the library.
 | [test-without-a-cluster.md](test-without-a-cluster.md) | Test a load with pytest on your own machine or in CI, with local Spark, Delta and your staging code |
 | [set-up-for-development.md](set-up-for-development.md) | Set up a checkout of this repository and run the tests, linter and type check before a commit |
 | [load-a-table-with-a-dqd.md](load-a-table-with-a-dqd.md) | Bring one table to its target from a Declarative Query Definition, with no staging notebook |
+| [write-a-custom-source.md](write-a-custom-source.md) | Land a source the library does not ship, such as an application's API, in a raw table holding the latest state of each record |
 | [load-a-data-vault-entity.md](load-a-data-vault-entity.md) | Load one entity into a Data Vault hub and satellite from a DQD, and read its current rows |
 | [load-a-data-vault-link.md](load-a-data-vault-link.md) | Load a link between two Data Vault hubs, and a link satellite on it |
 | [handle-early-exit-and-errors.md](handle-early-exit-and-errors.md) | Tell a load that wrote from one with nothing to write or one that failed, and end the notebook so its caller sees it |
-| [cut-a-release.md](cut-a-release.md) | Publish a release: run the platform-filtered builds, check the release branches, and dispatch the release workflow per platform |
 | [user-guide.md](user-guide.md) | The original user guide — being dissolved into task guides and reference pages |
 | [orchestration-user-guide.md](orchestration-user-guide.md) | The original orchestration guide — being dissolved the same way |
+

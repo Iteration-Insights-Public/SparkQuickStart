@@ -74,6 +74,18 @@ class StagingTransformer(SourceTransformer):
     def _produce(self, ctx: LoadContext) -> PipelineState:
         from spark_quick_start.logger import OrchestratorLogger
 
+        assert (self._ctx_manager is not None and self._ctx_manager.staging_ctx is not None
+                and self._ctx_manager.global_ctx is not None
+                and self._ctx_manager.global_ctx.staging_table_path is not None), (
+            "the orchestrator injects a parsed context manager before the source runs")
+        if not self._ctx_manager.staging_ctx.stages:
+            # validate_all() accepts a context with no stages when another source is named
+            # (F222), so this step refuses one itself rather than run zero notebooks.
+            raise ValueError(
+                "StagingTransformer: the load context has no staging phases "
+                "(staging_context.stages is empty); compose the source step the context names."
+            )
+
         logger = self._logger or OrchestratorLogger()
         executor = NotebookExecutor(self._adapter, logger)
 

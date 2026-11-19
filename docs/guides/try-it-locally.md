@@ -22,7 +22,7 @@ ships and a local Spark session.
    and `jupyter`, the versions the `local` extra pins; the library itself is not installed.
 
    ```bash
-   git clone https://github.com/Iteration-Insights-Enterprise/FabricQuickstart.git spark-quick-start
+   git clone https://github.com/Iteration-Insights-Public/SparkQuickStart.git spark-quick-start
    cd spark-quick-start
    python -m venv .venv
    source .venv/bin/activate

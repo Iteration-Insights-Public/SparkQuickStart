@@ -17,8 +17,7 @@ def _dbutils() -> Any:
     dbutils is usually a notebook global or ``databricks.sdk.runtime.dbutils``, not an importable
     module, so a bare ``import dbutils`` fails on serverless and the failure surfaced only as an
     empty ``ExecutionResult.logs``. One lookup, shared rather than copied: the import is lazy,
-    inside the function, and both files are databricks-only in a platform-filtered build, so a
-    fabric-only build never reaches it.
+    inside the function, and a source copy without the Databricks files never reaches it.
     """
     from spark_quick_start.adapters.databricks_adapter import _get_dbutils
     return _get_dbutils()

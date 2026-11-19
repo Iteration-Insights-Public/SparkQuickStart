@@ -6,7 +6,6 @@ PipelineState.frames["target"] for use by SCDChangeDetectorTransformer.
 """
 from __future__ import annotations
 
-from spark_quick_start.orchestration.transformers._aliases import SCD_RENAMES, deprecated_aliases
 from spark_quick_start.orchestration.transformers._pipeline import load_target_dataframe
 from spark_quick_start.orchestration.transformers.base import LoadContext, ProcessTransformer
 from spark_quick_start.orchestration.transformers.state import PipelineState
@@ -122,7 +121,3 @@ class SCDIncrementalTargetTableTransformer(ProcessTransformer):
         filtered_target = target_df.join(incoming_keys, on=[bk, ss], how="left_semi")
         logger.info(f"{type(self).__name__}: target filtered to incoming keys.")
         return state.with_target(filtered_target)
-
-
-# F155: the pre-rename names still resolve, with a DeprecationWarning (see _aliases.py).
-__getattr__ = deprecated_aliases(__name__, globals(), SCD_RENAMES)

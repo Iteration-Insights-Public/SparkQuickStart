@@ -47,7 +47,7 @@ Typical use in a payload notebook (in-memory mode for returning logs to parent):
 Package layout
 --------------
 This is a package (not a flat module) so platform-specific persistence
-adapters can be excluded per platform-filtered release build:
+adapters can be left out of a source copy:
     persistence_adapter.py     — LogPersistenceAdapter (ABC) + platform-neutral
                                   adapters (Null/Capturing/LogTable)
     fabric_persistence.py      — FabricPersistenceAdapter
@@ -88,7 +88,7 @@ from spark_quick_start.spark_logging.persistence_adapter import (
 )
 
 # The public surface (F121). A persistence adapter joins it only when its module imports:
-# a platform-filtered build deletes the other platforms' files, as in adapters/__init__.py.
+# a source copy may lack a platform's file, as in adapters/__init__.py.
 __all__ = [
     "CapturingPersistenceAdapter",
     "LogArtifacts",

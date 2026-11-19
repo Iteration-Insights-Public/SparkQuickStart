@@ -8,6 +8,7 @@ the unit under test. Unpatched pipeline behaviour is covered by
 """
 from __future__ import annotations
 
+import contextlib
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -19,6 +20,7 @@ from spark_quick_start.orchestration.transformers.base import (
     ProcessTransformer,
     SourceTransformer,
 )
+from spark_quick_start.orchestration.transformers.conditional import ConditionalTransformer
 from spark_quick_start.orchestration.transformers.native_scd import (
     NativeSCDAppendOnlyTransformer,
     NativeSCDMergeTransformer,
@@ -363,3 +365,109 @@ def test_the_quality_step_halts_the_chain_on_zero_candidates(spark):
     assert not any("NativeSCD" in str(n) for n in recorded), (
         f"a halted run must record no writer stage; got {recorded}"
     )
+
+
+# ── F234 / F232: what run() reports when the writer did not write ─────────────
+
+class _Writer(ProcessTransformer):
+    """A writer of our own shape: counts and watermark None until `_run` sets them (F117)."""
+
+    def __init__(self):
+        self.inserted = None
+        self.updated = None
+        self.hwm_before = None
+        self.hwm_after = None
+        self.hwm_column = "scdEffectiveFrom"
+
+    def _run(self, state, ctx):
+        self.inserted, self.updated = 5, 3
+        self.hwm_before, self.hwm_after = "2024-01", "2024-02"
+        return state
+
+
+def _run_once(orch, fake_state=None):
+    """Drive run(); `_run_pipeline` is real unless a state is given to replace it with."""
+    fake_ctx = _make_ctx()
+    fake_ctx.hwm_ctx = None
+    patches = [
+        patch('spark_quick_start.orchestration.orchestrator.LoadContextManager',
+              return_value=fake_ctx),
+        patch('spark_quick_start.orchestration.orchestrator.OrchestratorLogger'),
+        patch('spark_quick_start.orchestration.load_pipeline.log_runtime'),
+    ]
+    if fake_state is not None:
+        patches.append(patch.object(LoadOrchestrator, '_run_pipeline', return_value=fake_state))
+    with contextlib.ExitStack() as stack:
+        for p in patches:
+            stack.enter_context(p)
+        return orch.run()
+
+
+def test_a_second_run_does_not_report_the_first_runs_writer_counts():
+    """F234: the same orchestrator, run twice; the writer runs the first time only.
+
+    The provider attributes live on the step instances, which a second `run()` reuses, so
+    without a reset the second run harvests the first run's counts and watermark from a writer
+    it skipped, and `inserted is not None` (F117's proof that a writer ran) lies.
+    """
+    source = MagicMock(spec=SourceTransformer)
+    source.produce.return_value = PipelineState(df=MagicMock())
+    write = {"now": True}
+
+    orch = _make_orchestrator()
+    orch._adapter = MagicMock()
+    orch._adapter.delta_table_exists.return_value = False
+    orch._transformers = [source, ConditionalTransformer(lambda ctx: write["now"], _Writer())]
+
+    first = _run_once(orch)
+    assert first.status == "success", first.error_details
+    assert (first.metrics["inserted_count"], first.metrics["updated_count"]) == (5, 3)
+
+    write["now"] = False
+    second = _run_once(orch)
+    assert second.status == "success", second.error_details
+    assert (second.metrics["inserted_count"], second.metrics["updated_count"]) == (0, 0)
+    assert second.metrics["hwm_value_after"] != "2024-02"
+
+
+class _WatermarkSource(SourceTransformer):
+    """A source that reports a watermark, as a source owning `hwm_context`'s column does."""
+
+    def __init__(self):
+        self.hwm_column = "modified_at"
+        self.hwm_before = "B"  # the watermark the run was given
+        self.hwm_after = "T"   # the latest of the rows it read
+
+    def _produce(self, ctx):  # pragma: no cover — `_run_pipeline` is replaced in these tests
+        raise AssertionError("not reached")
+
+
+def _ran(writer):
+    writer.inserted, writer.updated = 2, 0
+    return writer
+
+
+@pytest.mark.parametrize(("halted", "writer", "expected"), [
+    pytest.param(True, _Writer(), "B", id="halt-refuses-the-batch"),
+    pytest.param(True, _ran(_Writer()), "B", id="halt-after-a-write"),
+    pytest.param(False, _Writer(), "B", id="registered-writer-skipped"),
+    pytest.param(False, _ran(_Writer()), "T", id="writer-ran"),
+    pytest.param(False, None, "T", id="no-writer-the-library-can-see"),
+])
+def test_the_watermark_moves_only_when_the_batch_reached_the_target(halted, writer, expected):
+    """F232: a caller stores `hwm_value_after` and reads from it next run, so it may move past
+    the batch only when a writer wrote it. A halt, which any step may impose, holds it like an
+    error, and so does a registered writer that did not run (a false `.add_if()`). A writer the
+    library cannot see, one that is no `SCDMetricsProvider`, keeps today's behaviour."""
+    orch = _make_orchestrator()
+    orch._transformers = [_WatermarkSource()] + ([] if writer is None else [writer])
+    state = PipelineState(df=MagicMock())
+    if halted:
+        state = state.with_halted("only 2 rows staged, expected at least 3")
+
+    result = _run_once(orch, fake_state=state)
+
+    assert result.status == "success", result.error_details
+    assert result.early_exit is halted
+    assert result.metrics["hwm_value_before"] == "B"
+    assert result.metrics["hwm_value_after"] == expected

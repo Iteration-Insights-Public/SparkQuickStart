@@ -35,12 +35,12 @@ from __future__ import annotations
 
 import shutil
 import traceback
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-from spark_quick_start.adapters.platform_adapter import PlatformAdapter
+from spark_quick_start.adapters.platform_adapter import PlatformAdapter, _mapped_secret
 from spark_quick_start.local_notebookutils._notebook import NotebookStub
 
 
@@ -89,8 +89,12 @@ class LocalAdapter(PlatformAdapter):
         notebook_registry: dict[str, Callable[[dict[str, Any]], str]] | None = None,
         current_notebook_name: str | None = None,
         notebooks_dir: str | None = None,
+        *,
+        secrets: Mapping[tuple[str, str], str] | None = None,
     ) -> None:
         self.base_path: str = base_path
+        # An explicit mapping, never the environment: a test states the secrets it reads (F221).
+        self._secrets: dict[tuple[str, str], str] = dict(secrets or {})
         self._registry: dict[str, Callable[[dict[str, Any]], str]] = (
             notebook_registry if notebook_registry is not None else {}
         )
@@ -191,6 +195,10 @@ class LocalAdapter(PlatformAdapter):
     def notebook_exit(self, value: str) -> None:
         """Log the exit value locally via NotebookStub (no runtime to signal)."""
         self._notebook_stub.exit(value)
+
+    def get_secret(self, scope: str, key: str) -> str:
+        """Return the secret from the constructor's ``secrets`` mapping (F221)."""
+        return _mapped_secret(self._secrets, scope, key)
 
     def get_log_persistence_adapter(self) -> Any:
         """Return LocalFilePersistenceAdapter for local filesystem log persistence.

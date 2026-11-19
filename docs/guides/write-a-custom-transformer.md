@@ -118,9 +118,12 @@ someone extending the library. The step runs the same on every platform.
            return state
    ```
 
-   Three things follow from this shape. An empty batch leaves `hwm_after` as `None`, so, without
+   Four things follow from this shape. An empty batch leaves `hwm_after` as `None`, so, without
    `hwm_context`, the step does not count and the writer's watermark is used. Because the whole provider is taken, the
-   run's `hwm_value_before` is this step's `hwm_before`, `None` here, not the writer's. And the
+   run's `hwm_value_before` is this step's `hwm_before`, `None` here, not the writer's. When the
+   load exits early, or a writer added with `.add_if()` does not run, the run reports
+   `hwm_before` as `hwm_value_after` too (F232): `None` here, so a caller that stores it reads
+   everything next time; a step that is given a watermark sets `hwm_before` to it. And the
    aggregation is a Spark action over the source rows, paid on every run.
 
    A writer of your own reports `inserted` and `updated` the same way, as an

@@ -1,13 +1,12 @@
-"""F155 — the SCD-specific steps carry `SCD` in their names; the old names still work, with a warning.
+"""F155, F235 — the SCD-specific steps carry `SCD` in their names, and the old names are gone.
 
 Data Vault steps are named by style (`DVHub…`, `DVSatellite…`), so the five steps that only make
-sense for an SCD target say so too. Notebooks outside the repo import the old names; each keeps
-resolving to the same class, and warns once per lookup with the name to use.
+sense for an SCD target say so too. F155 kept the old names importable, with a warning, until a
+removal release; F235 removed them in 0.6.0, so an old name fails as any missing name does.
 """
 from __future__ import annotations
 
 import importlib
-import warnings
 
 import pytest
 
@@ -42,27 +41,16 @@ def test_the_new_name_is_exported_and_the_old_one_is_not(old: str, new: str) -> 
         assert old not in module.__all__, f"{package} still exports the deprecated {old}"
 
 
-@pytest.mark.parametrize("old,new", sorted(_RENAMED.items()))
-def test_the_old_name_resolves_to_the_new_class_with_a_warning(old: str, new: str) -> None:
+@pytest.mark.parametrize("old", sorted(_RENAMED))
+def test_the_old_name_no_longer_resolves(old: str) -> None:
+    """Neither as an attribute of the module it was defined in or a package that exported it,
+    nor by a from-import, which is how notebooks used it."""
     for where in (*_PACKAGES[old], _HOMES[old]):
         module = importlib.import_module(where)
-        with pytest.warns(DeprecationWarning, match=rf"{old} is deprecated; use {new}\. The old name is removed in 0\.5\.0"):
-            alias = getattr(module, old)
-        assert alias is getattr(module, new) if hasattr(module, new) else alias.__name__ == new
-
-
-@pytest.mark.parametrize("where", [_ORCHESTRATION, _HOMES["ChangeDetectorTransformer"]])
-def test_a_from_import_warns_at_the_line_that_imports(where: str) -> None:
-    """How notebooks use it. A package's `from … import` looks the name up twice
-    (`_handle_fromlist`, then `IMPORT_FROM`), so it can warn twice, but every warning points
-    at the importing line, and the default filters show one warning per location."""
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        namespace: dict[str, object] = {"__name__": "__main__"}
-        exec(compile(f"from {where} import ChangeDetectorTransformer", "<cell>", "exec"), namespace)
-    assert namespace["ChangeDetectorTransformer"].__name__ == "SCDChangeDetectorTransformer"  # type: ignore[attr-defined]
-    assert caught, "no DeprecationWarning on a from-import"
-    assert {(w.category, w.filename, w.lineno) for w in caught} == {(DeprecationWarning, "<cell>", 1)}
+        with pytest.raises(AttributeError, match=old):
+            getattr(module, old)
+        with pytest.raises(ImportError, match=old):
+            exec(f"from {where} import {old}", {"__name__": "__main__"})
 
 
 def test_the_new_classes_are_named_as_they_are_exported() -> None:
@@ -70,14 +58,3 @@ def test_the_new_classes_are_named_as_they_are_exported() -> None:
     module = importlib.import_module(_TRANSFORMERS)
     for new in _RENAMED.values():
         assert getattr(module, new).__name__ == new
-
-
-def test_an_unknown_name_still_raises_attribute_error() -> None:
-    """Including an old name a package never exported: the alias does not widen the API."""
-    with warnings.catch_warnings():
-        warnings.simplefilter("error")
-        for package, name in ((_TRANSFORMERS, "NoSuchTransformer"),
-                              (_ORCHESTRATION, "IncrementalTargetTableTransformer")):
-            module = importlib.import_module(package)
-            with pytest.raises(AttributeError, match=name):
-                getattr(module, name)

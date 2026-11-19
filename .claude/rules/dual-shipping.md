@@ -32,7 +32,7 @@ package metadata, no build hook. Consequences, all binding:
 - Imports are absolute (`from spark_quick_start...`) and the package root stays
   `src/spark_quick_start/`. Nothing may depend on the repo layout above `src/`.
 - The defensive adapter imports in `adapters/__init__.py` and `spark_logging/__init__.py`
-  serve this path too: a source copy may have had platform files stripped like a filtered wheel.
+  serve this path too: a source copy may have had platform files removed.
 
 **Shippability test for any change:** it works installed from the wheel, *and* as `./src/`
 on `sys.path` with nothing installed but PySpark. A feature needing a dependency a source

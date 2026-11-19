@@ -2,11 +2,10 @@
 
 ``adapters/__init__.py`` imports each concrete adapter inside ``try/except
 ImportError``, resolving the name to ``None`` and dropping it from ``__all__``
-when the module is absent. That is not defensive padding: platform-filtered
-release builds physically delete adapter files (see
-``scripts/filter_platform_release.sh``), and the same holds for a source-copy
-deployment made from one. A plain import there would look correct in every
-local suite and break on first import of the shipped Fabric or Databricks wheel.
+when the module is absent. That is not defensive padding: a source-copy
+deployment may have adapter files removed (``.claude/rules/dual-shipping.md``).
+A plain import there would look correct in every local suite and break on
+first import of that copy.
 
 Missing modules are simulated by setting the ``sys.modules`` entry to ``None``,
 which makes Python raise ``ImportError`` for that name, then re-importing the
@@ -56,39 +55,24 @@ def test_absent_adapter_resolves_to_none_and_leaves_all(
 
 
 def test_all_adapters_present_in_a_full_checkout(reimport_adapters):
-    """The trunk ships every adapter — the negative tests above must not be vacuous.
+    """The trunk ships every adapter, and the negative tests above must not be vacuous.
 
-    Skips on a platform-filtered checkout, where the assertion is false by construction:
-    `scripts/filter_platform_release.sh` physically deletes the other platform's adapter,
-    so a fabric-only tree has no `DatabricksAdapter` to find and this test asserted the
-    opposite of what that tree is.
+    Fails, never skips, when an adapter file is missing from the checkout (F218). The repo is
+    never a platform-filtered tree any more, so a missing file is a deletion, the August 2026
+    failure that `verify_trunk_complete.sh` caught before it was removed.
 
-    That mattered. `platform-builds.yaml` filters a checkout for each platform and runs the
-    whole suite on it, with the stated purpose of catching breakage before it reaches a release
-    branch — and this test failed it, for both platforms, on every PR at the time, when the PR
-    workflow still ran those builds, for an unrelated reason. A job that is always red proves nothing about the thing it exists to check
-    (F16).
-
-    Detected from the source tree rather than from the imported package, deliberately:
+    Read from the source tree rather than from the imported package, deliberately:
     `pkg.DatabricksAdapter is None` is also what a genuine import failure looks like, and
-    conflating the two is how this test would stop failing for the right reasons too.
-    The sibling test above covers the absent-adapter path, so nothing is lost on a
-    filtered tree; `tests/architecture/test_release_filter.py` and
-    `scripts/verify_trunk_complete.sh` both assert trunk completeness independently.
+    the two failures must be told apart.
     """
     here = Path(__file__).resolve()
     root = next(p for p in here.parents if (p / "pyproject.toml").is_file())
     adapters_dir = root / "src" / "spark_quick_start" / "adapters"
-    stripped = [
-        name for name in ("fabric_adapter.py", "databricks_adapter.py")
+    missing = [
+        name for name in ("fabric_adapter.py", "databricks_adapter.py", "local_adapter.py")
         if not (adapters_dir / name).is_file()
     ]
-    if stripped:
-        pytest.skip(
-            f"platform-filtered checkout — {stripped} deleted by "
-            "scripts/filter_platform_release.sh, so a complete trunk is not what this "
-            "tree is"
-        )
+    assert not missing, f"adapter file(s) missing from the trunk: {missing}"
 
     sys.modules.pop(_PKG, None)
     pkg = importlib.import_module(_PKG)

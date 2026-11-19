@@ -2,9 +2,9 @@
 
 How the library runs unchanged on Microsoft Fabric, Azure Databricks and a local machine, for
 someone adding a platform call or a platform: where platform code may live, how an adapter is
-chosen, and how a build with one platform removed still imports. It covers `adapters/`, the
+chosen, and how a source copy with an adapter file removed still imports. It covers `adapters/`, the
 persistence adapters in `spark_logging/`, the adapter resolution in `orchestration/orchestrator.py`,
-the `local_notebookutils/` stub and `scripts/filter_platform_release.sh`. The constraints are the
+and the `local_notebookutils/` stub. The constraints are the
 [platform-boundary rule](../../.claude/rules/platform-boundary.md) and the
 [dual-shipping rule](../../.claude/rules/dual-shipping.md); this page explains them.
 
@@ -15,7 +15,7 @@ reaches a concrete adapter by name at run time, and only the Fabric and Databric
 platform SDK. Two other places name a concrete adapter, each inside a function body and not drawn:
 `create_staging_main_function` in `orchestration/staging_pipeline.py` builds a `FabricAdapter` when
 no adapter is passed, and `spark_logging/databricks_persistence.py` borrows `_get_dbutils` from
-`adapters/databricks_adapter.py`, both files being Databricks-only in a filtered build.
+`adapters/databricks_adapter.py`, both files being absent from a source copy that dropped the Databricks files.
 
 ```mermaid
 flowchart TD
@@ -79,17 +79,16 @@ in `_PLATFORM_MAP`, which holds dotted paths, and the module is imported only th
 never imports a concrete adapter, and adding a platform is one map entry. The values are on the
 [orchestrator reference](../reference/orchestrator.md#loadorchestratorplatform).
 
-## Builds for one platform
+## A copy without an adapter file
 
-`scripts/filter_platform_release.sh` produces a Fabric-only and a Databricks-only build by deleting
-the other platform's adapter and persistence modules, the local adapter and stub, and their tests.
-`spark_logging/local_persistence.py` stays in both builds: it is platform-neutral, and the logger
-substitutes it when the platform proposes a persistence adapter and `log_file_dir` starts with `/`.
-The package must still import afterwards, so `adapters/__init__.py` and `spark_logging/__init__.py`
-import each concrete class inside `try`/`except ImportError`, bind the name to `None` when it is
-missing, and leave it out of `__all__` where there is one. A load that asks for the deleted
-platform gets a `ValueError` from the orchestrator's constructor that says the build is filtered,
-not a bare missing-module error. The script is the one definition of what each build keeps.
+One core build ships to every platform, and its wheel holds every adapter. A source copy of `src/`
+may still have a file removed, so the package must import without it: `adapters/__init__.py` and
+`spark_logging/__init__.py` import each concrete class inside `try`/`except ImportError`, bind the
+name to `None` when it is missing, and leave it out of `__all__` where there is one. A load that
+asks for the missing platform gets a `ValueError` from the orchestrator's constructor that says the
+adapter file is missing from this copy of the library, not a bare missing-module error.
+`spark_logging/local_persistence.py` is platform-neutral: the logger substitutes it when the
+platform proposes a persistence adapter and `log_file_dir` starts with `/`.
 
 ## Tables by name or by path
 
@@ -111,10 +110,8 @@ SDK, it injects one.
 ## Why it is this shape
 
 Portability is the product (CLAUDE.md §1): a change that works on one platform only is a bug
-unless it sits behind an adapter. The findings that closed the leaks the audit found — `dbutils`
-outside the adapters (F1), identifier routing past the adapter (F6), the lost resolution message
-in a filtered build (F5) — are in the
-[2026-09-25 architecture audit](decisions/2026-09-25-architecture-audit.md) and the backlog.
+unless it sits behind an adapter.
+
 
 ## See also
 

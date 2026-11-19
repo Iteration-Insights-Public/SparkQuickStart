@@ -558,11 +558,31 @@ def _looks_like_section(key: str, sections: set[str]) -> bool:
             or re.search(r"(_context|Context|_ctx|Ctx)$", key) is not None)
 
 
+# F233: the top level of `source_context` is the library's, `kind` today, and a step's own keys go
+# under `properties`, which the library never reads. Declared, not recorded: the library reads the
+# section whole, so the recording finds none of its keys. The code still accepts a step's key beside
+# `kind`; only an example may not teach it, since a later library key could take its name.
+SOURCE_KEYS = frozenset({"kind", "properties"})
+
+
+def _source_problems(value: dict[str, Any], line: int, problems: list[tuple[int, str]]) -> None:
+    for key in value:
+        if key not in SOURCE_KEYS:
+            message = f"source_context has a key {key!r} beside `kind`; a step's own keys go under `properties`"
+            problems.append((line, message))
+    if "properties" in value and not isinstance(value["properties"], dict):
+        message = f"`source_context.properties` is {type(value['properties']).__name__}; it holds the step's keys as an object"
+        problems.append((line, message))
+
+
 def _object_problems(value: Any, path: str, schema: dict[str, set[str]], line: int,
                      problems: list[tuple[int, str]]) -> None:
     where = path or "the load context"
     if not isinstance(value, dict):
         problems.append((line, f"`{path}` is {type(value).__name__}; the library reads it as an object"))
+        return
+    if path == "source_context":
+        _source_problems(value, line, problems)
         return
     if path in OPAQUE:
         return

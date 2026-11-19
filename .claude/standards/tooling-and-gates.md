@@ -17,7 +17,8 @@ docker compose up                     # the same three runs in a container, as C
 ruff check src tests                  # pinned ruff==0.16.4, explicit select list
 python scripts/mypy_baseline.py       # fails only on NEW mypy errors
 python scripts/mypy_baseline.py --update   # after genuinely fixing some
-scripts/verify_trunk_complete.sh      # trunk still has every platform-specific path
+python scripts/public_api_snapshot.py         # fails when the public API differs from its snapshot
+python scripts/public_api_snapshot.py --write # after a deliberate public API change
 python scripts/check_mermaid.py       # static mermaid rules; --list names every diagram
 ```
 
@@ -46,6 +47,11 @@ python scripts/check_mermaid.py       # static mermaid rules; --list names every
 - `mypy` is `strict = true` but the tree carries a baseline of known errors, counted by
   `python scripts/mypy_baseline.py` and summarised in CLAUDE.md §8. New code must be clean; do
   not regenerate the baseline to hide new errors.
+- `tests/architecture/public_api.txt` is the public API's snapshot (F220), checked by
+  `tests/architecture/test_public_api.py`. Regenerate it with `--write` only for a deliberate
+  change and commit it with that change. An added line is a minor release. A removed or changed
+  line is a breaking change: it bumps the major, before 1.0 at least the minor, with a
+  **Breaking** entry in `CHANGELOG.md`. Never regenerate it to make the test pass.
 - `pytest tests/architecture` **needs `--no-cov` when run alone.** `--cov=src` lives in
   `addopts`, so the directory by itself reports near-zero coverage and trips
   `fail_under = 85`. The failure says "coverage failure", not "your tests failed" — read the

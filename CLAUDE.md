@@ -6,8 +6,9 @@
 >
 > **rule** = a hard constraint; violating it is a bug (boundaries, contracts, invariants).
 > **standard** = a convention; violating it is a review comment (shape, style, practice).
-> Every rule below is backed by a test under `tests/architecture/` — a violation is caught
-> whether or not anyone reads the file it lives in.
+> Every rule below is backed by a test under `tests/architecture/`, except those whose
+> "Enforced by" cell says judgement — a violation is caught whether or not anyone reads the
+> file it lives in.
 
 ---
 
@@ -99,7 +100,8 @@ being wrong is not a rework — it is corrupted customer data or a broken gate:
 | [`transformer-contract`](.claude/rules/transformer-contract.md)   | Never override `produce()`/`__call__()`; services injected at `.run()` time; `PipelineState` immutable; optional capabilities are protocols                             | `tests/architecture/test_transformer_contract.py` |
 | [`data-contract`](.claude/rules/data-contract.md)                 | `_change_type`, `_prev_scdVersion` and the frames key are each defined once, in `_constants.py`, and configurable on all sides or none                                   | `tests/architecture/test_data_contract.py`        |
 | [`spark-delta-cost`](.claude/rules/spark-delta-cost.md)           | Cache gated on `serverless`; never `count()` for metrics; every Spark action is a cost decision stated in the docstring; destructive ops guarded                            | **none — judgement.** `/review-pr`         |
-| [`release-and-branching`](.claude/rules/release-and-branching.md) | Never branch from `release/*`; `filter_platform_release.sh` is the single source of truth for platform builds                                                               | `tests/architecture/test_release_filter.py`       |
+| [`context-compatibility`](.claude/rules/context-compatibility.md) | Never change an existing load-context field's default or meaning; a removal, rename or move leaves a refusing branch; a breaking change bumps the major | **none — judgement.** `/review-pr`         |
+| [`release-and-branching`](.claude/rules/release-and-branching.md) | Branch from `main`; one release per version, tagged `v<version>`, cut by `release.yaml` from `main` only                                                                     | `tests/architecture/test_ci_workflows.py`         |
 | [`test-classification`](.claude/rules/test-classification.md)     | Three suites split by scope — unit, integration, architecture; markers stamped from the directory, never by hand                                                              | `tests/architecture/test_test_classification.py`  |
 
 ---

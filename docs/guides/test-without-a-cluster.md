@@ -10,12 +10,15 @@ platform; a staging notebook can be run as a file only if it is a Fabric noteboo
 ## Before you start
 
 - Java 17 is installed, and the `local` extra with `pytest`. The extra is `pyspark`,
-  `delta-spark` and `nbformat`. The platform release wheels do not carry it, or `LocalAdapter`,
-  so install from a checkout of `main`, in its root:
+  `delta-spark` and `nbformat`. The package ships `LocalAdapter`, and the extra installs its
+  packages alongside it, pinned to the same commit of the public repository:
 
   ```bash
-  pip install ".[local]" pytest
+  pip install "spark_quick_start[local] @ git+https://github.com/Iteration-Insights-Public/SparkQuickStart@<commit>" pytest
   ```
+
+  From a checkout of `main`, in its root, `pip install ".[local]" pytest` does the same for the
+  unreleased code.
 
   On a copy of `src/` there are no extras: install `"pyspark>=3.5,<4"`, `"delta-spark>=3,<4"`,
   `"nbformat>=5,<6"` and `pytest` yourself. See [Installation](../../README.md#installation).

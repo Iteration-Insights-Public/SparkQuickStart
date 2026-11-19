@@ -22,6 +22,12 @@ class HWMProvider(Protocol):
     that staged nothing, F138). Otherwise, or when none reports for that
     column, it uses the first one whose ``hwm_after`` is not None.
 
+    When the pipeline halted, or a registered ``SCDMetricsProvider`` did not run, the
+    orchestrator reports ``hwm_before`` as the watermark after (F232). So a source that owns the
+    column sets ``hwm_before`` to the watermark it was given, ``hwm_context.hwm_value``: that is
+    the value the caller stores and passes back. The orchestrator resets ``hwm_before`` and
+    ``hwm_after`` to None before each run (F234).
+
     Priority is determined by transformer registration order — transformers
     registered earlier take precedence. Source transformers are registered before SCD
     merge transformers, so a source's watermark wins when both provide a value.

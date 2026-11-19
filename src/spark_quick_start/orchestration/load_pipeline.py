@@ -3,7 +3,8 @@ load_pipeline.py — EDW load pipeline functions.
 
 Contains: validate_and_merge_staging_tables, load_staged_dataframe,
     load_target_dataframe, execute_scd_merge, execute_append_only,
-    execute_dv_insert_only, capture_write_statistics,
+    execute_dv_insert_only, check_landing_batch, latest_per_key, execute_key_merge,
+    capture_write_statistics,
     capture_merge_statistics, get_high_watermark, log_runtime.
 Does NOT contain: staging orchestration, platform-specific code,
     or any import from spark_load_orchestration.
@@ -24,9 +25,21 @@ from functools import reduce as _reduce
 from typing import Any
 
 import pyspark.sql.functions as F
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql.functions import col, lit
-from pyspark.sql.types import StructType
+from pyspark.sql.types import (
+    ArrayType,
+    DataType,
+    DateType,
+    DoubleType,
+    FloatType,
+    MapType,
+    NumericType,
+    StructField,
+    StructType,
+    TimestampNTZType,
+    TimestampType,
+)
 
 from spark_quick_start.adapters.platform_adapter import PlatformAdapter
 from spark_quick_start.orchestration.column_policy import ColumnNamingPolicy
@@ -36,9 +49,12 @@ from spark_quick_start.orchestration.validation import compare_schemas_primitive
 __all__ = [
     "capture_merge_statistics",
     "capture_write_statistics",
+    "check_landing_batch",
     "execute_append_only",
+    "execute_key_merge",
     "execute_scd_merge",
     "get_high_watermark",
+    "latest_per_key",
     "load_staged_dataframe",
     "load_target_dataframe",
     "log_runtime",
@@ -350,6 +366,205 @@ def execute_dv_insert_only(
 
     run_with_delta_retry(merge) if retry else merge()
     return pre_version, False
+
+
+# The ordering column must compare as time does: text would order "2026-01-01T9:00" after
+# "2026-01-01T10:00" (F223).
+_ORDERABLE = (NumericType, TimestampType, TimestampNTZType, DateType)
+_RANK = "_spark_quick_start_rank"
+
+
+def _quoted(name: str) -> str:
+    return "`" + name.replace("`", "``") + "`"
+
+
+def _column(name: str) -> Any:
+    """A column by its exact name: a dot or a backtick in it is part of the name (F223 adversary)."""
+    return col(_quoted(name))
+
+
+def _field(rows: DataFrame, name: str) -> StructField | None:
+    """The batch's field called *name*, ignoring case, as Delta and Spark's default resolve it."""
+    matches = [f for f in rows.schema.fields if f.name.lower() == name.lower()]
+    return matches[0] if matches else None
+
+
+def _without_nullability(dtype: DataType) -> DataType:
+    """*dtype* with every nested nullability set: Delta stores nested fields as nullable, so
+    a difference only there is not a change of type (F223 adversary)."""
+    if isinstance(dtype, StructType):
+        return StructType([StructField(f.name, _without_nullability(f.dataType), True) for f in dtype.fields])
+    if isinstance(dtype, ArrayType):
+        return ArrayType(_without_nullability(dtype.elementType), True)
+    if isinstance(dtype, MapType):
+        return MapType(_without_nullability(dtype.keyType), _without_nullability(dtype.valueType), True)
+    return dtype
+
+
+def check_landing_batch(rows: DataFrame, key: str, ordering: str, *, check_nulls: bool) -> None:
+    """Refuse a landing batch the key merge cannot place: a missing key or ordering column, an
+    ordering column that is not a timestamp, date or number, two columns whose names differ only
+    by case, and, with *check_nulls*, a NULL key or a NULL or NaN ordering value (F223).
+
+    A NULL key matches no row, so it would be inserted again on every run; a NULL ordering value
+    cannot be newer than anything, and a NaN one is newer than everything. Names are matched
+    ignoring case, as Delta matches them. With *check_nulls* the check is one aggregation over
+    the batch, a Spark action; without it, none.
+
+    Raises:
+        ValueError: naming the column, and the count of rows for a NULL or NaN.
+    """
+    folded: dict[str, list[str]] = {}
+    for name in rows.columns:
+        folded.setdefault(name.lower(), []).append(name)
+    clashes = [names for names in folded.values() if len(names) > 1]
+    if clashes:
+        raise ValueError(
+            f"the landing batch has columns whose names differ only by case, {clashes}; a Delta "
+            "table cannot hold both. Rename one in the source step."
+        )
+    fields = {}
+    for name, role in ((key, "key"), (ordering, "ordering")):
+        field = _field(rows, name)
+        if field is None:
+            raise ValueError(
+                f"the landing batch has no {role} column {name!r}; it has {sorted(rows.columns)}."
+            )
+        fields[role] = field
+    dtype = fields["ordering"].dataType
+    if not isinstance(dtype, _ORDERABLE):
+        raise ValueError(
+            f"the landing batch's ordering column {ordering!r} is {dtype.simpleString()}; it must be "
+            "a timestamp, a date or a number, so that the latest row is the latest in time. Cast it "
+            "in the source step."
+        )
+    if check_nulls:
+        key_col, ordering_col = _column(fields["key"].name), _column(fields["ordering"].name)
+        missing = ordering_col.isNull()
+        if isinstance(dtype, (FloatType, DoubleType)):
+            missing = missing | F.isnan(ordering_col)
+        counts = rows.agg(
+            F.sum(key_col.isNull().cast("int")).alias("key"),
+            F.sum(missing.cast("int")).alias("ordering"),
+        ).first()
+        assert counts is not None, "an aggregation without grouping returns one row"
+        for count, name, what in ((counts["key"], key, "NULL"), (counts["ordering"], ordering, "NULL or NaN")):
+            if count:
+                raise ValueError(
+                    f"{count} row(s) of the landing batch have {what} in {name!r}; a landing table "
+                    "needs a key and an ordering value on every row."
+                )
+
+
+def latest_per_key(rows: DataFrame, key: str, ordering: str) -> DataFrame:
+    """One row per *key*: the one with the latest *ordering* value (F223).
+
+    Two rows with one ordering value are settled by a hash of their other columns as JSON,
+    which tells a NULL in one column from a NULL in another and takes any column type:
+    identical rows are one row, and between two different rows the winner is the same on every
+    run, but arbitrary. One shuffle, no action.
+    """
+    others = [c for c in rows.columns if c != key]
+    tie = F.xxhash64(F.to_json(F.struct(*[_column(c) for c in others]))) if others else lit(0)
+    rank = _RANK
+    while rank.lower() in {c.lower() for c in rows.columns}:
+        rank += "_"
+    window = Window.partitionBy(_column(key)).orderBy(_column(ordering).desc_nulls_last(), tie.desc())
+    return rows.withColumn(rank, F.row_number().over(window)).where(col(_quoted(rank)) == 1).drop(rank)
+
+
+def execute_key_merge(
+    spark: SparkSession,
+    adapter: PlatformAdapter,
+    rows: DataFrame,
+    target_table: str,
+    *,
+    key: str,
+    ordering: str,
+    load_ts_column: str,
+    load_ts: datetime,
+    logger: Any,
+    check_nulls: bool = True,
+) -> tuple[int, int]:
+    """Keep the latest state of each key in a landing table; return (inserted, updated) (F223).
+
+    The batch is checked (`check_landing_batch`), reduced to one row per key
+    (`latest_per_key`) and stamped with *load_ts* in *load_ts_column*. A missing table is
+    created from it by `write_delta_create`, one commit, unless the batch is empty, which
+    creates nothing. Into an existing table: a column whose type differs from the table's is
+    refused before anything is written; a column the table lacks is added
+    (`PlatformAdapter.add_delta_columns`); then one MERGE on *key* updates a row only when the
+    batch's ordering value is newer, so a replayed or older batch changes nothing, and inserts
+    the keys the table lacks. Update and insert name the batch's columns, so a column only the
+    table has is left alone on update and NULL on insert. No delete, no SCD column. The MERGE
+    retries through `run_with_delta_retry`: its rows are decided by its own predicate against
+    the live table.
+
+    Cost: the optional NULL check (one aggregation), one shuffle, the existence check; on a first
+    load `isEmpty()`, the create and one history read for the count; otherwise the table's schema,
+    one history read for the version before the write, an `ALTER TABLE` for new columns, the
+    MERGE, and one history read for the counts. No `count()`, no cache.
+
+    Raises:
+        ValueError: for a batch `check_landing_batch` refuses, a batch that already has
+            *load_ts_column*, or a column retyped against the table.
+    """
+    # Function-local: delta_utils imports this module at its top (as execute_dv_insert_only).
+    from spark_quick_start.orchestration.delta_utils import run_with_delta_retry
+
+    check_landing_batch(rows, key, ordering, check_nulls=check_nulls)
+    key = _field(rows, key).name  # type: ignore[union-attr]  # check_landing_batch found it
+    ordering = _field(rows, ordering).name  # type: ignore[union-attr]
+    if _field(rows, load_ts_column) is not None:
+        raise ValueError(
+            f"the landing batch already has a column {load_ts_column!r}, which the writer stamps "
+            "with the load time; rename it in the source step, or name another "
+            "scd_context.load_ts_column."
+        )
+    batch = latest_per_key(rows, key, ordering).withColumn(load_ts_column, lit(load_ts))
+
+    if not adapter.delta_table_exists(spark, target_table):
+        if batch.isEmpty():
+            logger.info(f"Landing batch is empty; {target_table} is not created")
+            return 0, 0
+        logger.info(f"Creating landing table: {target_table}")
+        adapter.write_delta_create(batch, target_table)
+        return capture_write_statistics(spark, target_table, -1, adapter, logger), 0
+
+    # Delta matches column names ignoring case, whatever spark.sql.caseSensitive says.
+    have = {f.name.lower(): f for f in adapter.read_delta(spark, target_table).schema.fields}
+    retyped = [f"{f.name}: the table has {have[f.name.lower()].dataType.simpleString()}, the batch "
+               f"{f.dataType.simpleString()}"
+               for f in batch.schema.fields
+               if f.name.lower() in have
+               and _without_nullability(have[f.name.lower()].dataType) != _without_nullability(f.dataType)]
+    if retyped:
+        raise ValueError(
+            f"the landing batch changes the type of {len(retyped)} column(s) of {target_table!r} "
+            f"({'; '.join(retyped)}); a landing table adds new columns but never retypes one. "
+            "Cast it in the source step, or change the table."
+        )
+    added = [f for f in batch.schema.fields if f.name.lower() not in have]
+    if added:
+        logger.info(f"Adding columns to {target_table}: {[f.name for f in added]}")
+        adapter.add_delta_columns(spark, target_table, added)
+
+    dt = adapter.resolve_delta_table(spark, target_table)
+    pre_version = int(dt.history(1).selectExpr("max(version)").collect()[0][0] or -1)
+    condition = f"tgt.{_quoted(key)} = src.{_quoted(key)}"
+    newer = f"tgt.{_quoted(ordering)} IS NULL OR src.{_quoted(ordering)} > tgt.{_quoted(ordering)}"
+    updates = {_quoted(c): f"src.{_quoted(c)}" for c in batch.columns if c != key}
+    inserts = {_quoted(c): f"src.{_quoted(c)}" for c in batch.columns}
+
+    def merge() -> Any:
+        return (dt.alias("tgt").merge(batch.alias("src"), condition)
+                .whenMatchedUpdate(condition=newer, set=updates)
+                .whenNotMatchedInsert(values=inserts)
+                .execute())
+
+    run_with_delta_retry(merge)
+    inserted, updated, _ = capture_merge_statistics(spark, target_table, pre_version, adapter, logger)
+    return inserted, updated
 
 
 def capture_write_statistics(

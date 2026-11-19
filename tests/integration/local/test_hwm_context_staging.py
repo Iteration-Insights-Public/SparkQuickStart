@@ -103,3 +103,61 @@ def test_a_staging_load_filters_by_the_previous_runs_watermark(spark, tmp_path):
     assert (second.metrics["inserted_count"], second.metrics["updated_count"]) == (2, 1)
     assert (second.metrics["hwm_value_before"], second.metrics["hwm_value_after"]) == \
         ("2026-09-02 11:00:00", "2026-09-03 10:00:00")
+
+
+def test_a_halt_that_refuses_the_batch_holds_the_watermark_and_the_next_run_lands_it(spark, tmp_path):
+    """F232: a step of the user's own halts a non-empty batch before the writer. The watermark
+    the caller stores must stay where it was, or the next run reads past the refused rows and
+    they are never written. Then the next run, given that watermark, lands them."""
+    from spark_quick_start.orchestration import (
+        CandidateGuardTransformer,
+        LoadOrchestrator,
+        NativeSCDMergeTransformer,
+        ProcessTransformer,
+        SCDChangeDetectorTransformer,
+        SCDTargetTableTransformer,
+        StagingTransformer,
+    )
+
+    class RequireRows(ProcessTransformer):  # the guide's example, handle-early-exit-and-errors.md
+        def __init__(self, minimum):
+            self.minimum = minimum
+
+        def _run(self, state, ctx):
+            staged = state.df.limit(self.minimum).count()
+            if staged < self.minimum:
+                return state.with_halted(f"only {staged} rows staged, expected at least {self.minimum}")
+            return state
+
+    source = {"rows": [(1, "Ada", "2026-09-02 10:00:00"), (2, "Grace", "2026-09-02 11:00:00")]}
+
+    def stage(storage_path, staging_context, global_context, notebook_name, hwm_context):
+        frame = spark.createDataFrame(source["rows"], "customer_id int, name string, modified_at string") \
+            .selectExpr("customer_id", "name", "timestamp(modified_at) AS modified_at", "'N' AS scdDeletedFlag")
+        if hwm_context["hwm_value"] is not None:
+            frame = frame.filter(f"{hwm_context['hwm_column_name']} > timestamp('{hwm_context['hwm_value']}')")
+        return frame
+
+    main = create_staging_main_function(stage, adapter=LocalAdapter(), spark=spark)
+    adapter = LocalAdapter(notebook_registry={"NB_Stage_Customer": lambda a: main(a["stage_context_str"]).to_json()})
+
+    def load(hwm_value, minimum):
+        context = _load_context(tmp_path, {"hwm_column_name": "modified_at", "hwm_value": hwm_value})
+        return (LoadOrchestrator(load_context_json=context, spark=spark, adapter=adapter)
+                .add(StagingTransformer())
+                .add(RequireRows(minimum))
+                .add(SCDTargetTableTransformer())
+                .add(SCDChangeDetectorTransformer())
+                .add(CandidateGuardTransformer())
+                .add(NativeSCDMergeTransformer())
+                .run())
+
+    refused = load("2026-09-01 00:00:00", minimum=3)
+    assert refused.status == "success", refused.error_details
+    assert refused.early_exit
+    assert refused.metrics["hwm_value_after"] == refused.metrics["hwm_value_before"] == "2026-09-01 00:00:00"
+
+    landed = load(refused.metrics["hwm_value_after"], minimum=1)
+    assert landed.status == "success", landed.error_details
+    assert (landed.metrics["inserted_count"], landed.metrics["updated_count"]) == (2, 0)
+    assert landed.metrics["hwm_value_after"] == "2026-09-02 11:00:00"

@@ -1,0 +1,29 @@
+name: Enhancement request
+description: Something the library should do that it does not.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the idea. The maintainers decide and make each change in their own repository; see CONTRIBUTING.md. For a question, start a Discussion instead.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What you are trying to do
+      description: The task or the load you want to run, and what stops you today.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help
+      description: The change you have in mind, if you have one.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options:
+        - Microsoft Fabric
+        - Azure Databricks
+        - Local

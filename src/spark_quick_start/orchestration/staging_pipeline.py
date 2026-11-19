@@ -159,9 +159,8 @@ def create_staging_main_function(
             flag column, which a source that marks deleted rows may stage as the delete
             signal (F127).
             Must NOT include ``Constants.EXCLUDE_COLUMNS`` — they are added here.
-        adapter: Platform adapter.  Defaults to ``FabricAdapter()``. A build
-            without ``fabric_adapter.py`` (the Databricks-filtered release, or a
-            source copy stripped the same way) cannot construct that default, so
+        adapter: Platform adapter.  Defaults to ``FabricAdapter()``. A source
+            copy without ``fabric_adapter.py`` cannot construct that default, so
             pass ``adapter=`` explicitly on any non-Fabric platform.
         spark: Optional SparkSession. When supplied, the staging path is
             confirmed to be a Delta table before the pre-delete removes it —

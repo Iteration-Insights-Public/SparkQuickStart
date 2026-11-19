@@ -10,7 +10,7 @@ module under `src/spark_quick_start/adapters/`. Everything is exported by
 
 ## `spark_quick_start.adapters`
 
-A platform-filtered build deletes the other platform's adapter module; its name is then `None`
+A source copy that lacks a platform's adapter module has that name as `None`
 and is left out of `__all__`.
 
 | Name | Kind | Meaning |
@@ -33,6 +33,7 @@ default and every adapter implements it.
 | `delete_path` | `(path: str)` | `None` | Abstract. Deletes a path recursively: `notebookutils.fs.rm`, `dbutils.fs.rm`, or `shutil.rmtree` on Local, which resolves a relative path against `base_path` and does nothing when the path is absent. |
 | `get_current_notebook_name` | `()` | `str \| None` | Abstract. The running notebook's name, or `None` when it cannot be read. Databricks returns the last segment of the notebook path; Local returns `current_notebook_name`. |
 | `notebook_exit` | `(value: str)` | `None` | Signals notebook completion with `value`. The default does nothing. Overridden by Fabric (`notebookutils.notebook.exit`), Databricks (`dbutils.notebook.exit`) and Local, which logs the value and keeps running. |
+| `get_secret` | `(scope: str, key: str)` | `str` | The secret named `key` in `scope`, read through the platform's secret store, so a source step imports no platform SDK. `scope` is the Key Vault URL on Fabric (`notebookutils.credentials.getSecret`) and the secret scope on Databricks (`dbutils.secrets.get`). The default raises `NotImplementedError` naming the adapter class. `LocalAdapter` and `MockPlatformAdapter` return it from their `secrets` mapping and raise `KeyError` naming the scope and key, never a value, when it is absent. |
 | `get_log_persistence_adapter` | `()` | `Any \| None` | The log persistence backend for this platform. The default returns `None`. Overridden by Fabric (`FabricPersistenceAdapter`), Databricks (`DatabricksPersistenceAdapter`) and Local (`LocalFilePersistenceAdapter`). |
 | `is_table_identifier` | `(identifier: str)` | `bool` | False for an absolute path, a Windows drive or UNC path, or a URI (any `scheme://` prefix, such as `abfss://`, `hdfs://` or `s3a://`, and `dbfs:/` or `file:`); true for anything else. A relative path such as `Files/staging/x` counts as a table name, and the number of name parts is not checked. Every Delta method below routes on this. Not overridden. |
 | `read_delta` | `(spark: SparkSession, identifier: str)` | `DataFrame` | `spark.table()` for a table name, `spark.read.format("delta").load()` for a path. |
@@ -47,6 +48,7 @@ default and every adapter implements it.
 | `write_delta_create` | `(df: DataFrame, identifier: str)` | `None` | Creates a Delta table from `df` with `mode("errorifexists")`, by catalog name or path, and raises Spark's error when a Delta table is already there, so a missed existence check cannot become an append over existing rows. For a path the driver's local filesystem shows with entries, first asks `path_has_content` and raises `ValueError`, writing nothing, when the path holds files and has no `_delta_log` entries; anything else is left to `errorifexists`. The Data Vault writers and the SCD merge (F209) create their tables with it. No platform overrides it. |
 | `get_table_properties` | `(spark: SparkSession, identifier: str)` | `dict[str, str]` | Every property of the Delta table, the library's (`spark_quick_start.*`) and Delta's alike, by catalog name or path, through `DESCRIBE DETAIL`; no `DeltaTable`, so it works on Spark Connect and serverless. One Spark action on metadata. Raises `UnsupportedTableIdentifier`, a `ValueError` subclass in `adapters/platform_adapter.py` that `set_table_properties` raises too, for an identifier that is not a plain `str`, a name that is not 1 to 3 plain parts (a relative `Tables/x` counts as a name and is refused), or a path with a backtick, `$` or control character; a backslash or single quote in a path is kept, since both are literal inside the quoted name. A missing or non-Delta target raises Spark's own error: check `delta_table_exists` first. No platform overrides it. |
 | `set_table_properties` | `(spark: SparkSession, identifier: str, properties: Mapping[str, str])` | `None` | Sets properties through `ALTER TABLE … SET TBLPROPERTIES`, a Delta commit of its own that conflicts with any write running on the table at the same time; nothing to set issues no SQL. The identifier is refused as `get_table_properties` refuses it. Keys must be `spark_quick_start.<lower_snake_case>`, values plain strings with no quote, backslash, backtick, `$` or control character, because both go into the statement and Spark substitutes `${…}` even inside quotes; anything else raises `ValueError` and nothing is written. No platform overrides it. |
+| `add_delta_columns` | `(spark: SparkSession, identifier: str, fields: Sequence[StructField])` | `None` | Adds `fields` as nullable columns through `ALTER TABLE … ADD COLUMNS`, by catalog name or path, quoted as `set_table_properties` quotes it; metadata only, so existing rows read NULL in them. Does nothing for no fields. Portable; no adapter overrides it. Used by `KeyMergeTransformer` for a source column the landing table lacks. |
 | `resolve_delta_table` | `(spark: SparkSession, identifier: str)` | `DeltaTable` | `DeltaTable.forName()` or `DeltaTable.forPath()`. Raises `RuntimeError` when `delta-spark` is not installed. |
 
 `MockPlatformAdapter` overrides every method except `notebook_exit`, `get_log_persistence_adapter`
@@ -59,6 +61,7 @@ and `is_table_identifier`; see its section below.
 | `base_path` | `str` | `""` | Prefix for a relative path passed to `delete_path`. Also readable as the attribute `base_path`. |
 | `notebook_registry` | `dict[str, Callable[[dict[str, Any]], str]] \| None` | `None` | Notebook name to a callable that takes the arguments and returns an `ExecutionResult` JSON string. `{}` enables notebook runs with nothing registered yet. |
 | `current_notebook_name` | `str \| None` | `None` | What `get_current_notebook_name` returns. |
+| `secrets` | `Mapping[tuple[str, str], str] \| None` | `None` | Keyword-only. `(scope, key)` to the value `get_secret` returns. The environment is never read. |
 | `notebooks_dir` | `str \| None` | `None` | A directory of `.ipynb` files, tried before the registry. An absolute name tries `<name>.ipynb`, then its last segment under this directory; any other name is looked up whole under this directory, subdirectories included. Running a file needs `nbformat`, and raises `ImportError` without it. |
 
 With neither `notebook_registry` nor `notebooks_dir`, `run_notebook` raises `NotImplementedError`.
@@ -77,6 +80,8 @@ appended to by one method, for a test to assert on.
 | `existing_tables` | parameter | `set \| None` | `None` | The identifiers `delta_table_exists` reports as present. |
 | `non_empty_paths` | parameter | `set \| None` | `None` | The paths `path_has_content` reports as holding files. |
 | `table_properties` | parameter | `dict[str, dict[str, str]] \| None` | `None` | The properties `get_table_properties` returns, per identifier; `set_table_properties` updates them, so a seal written in a test is read back. An identifier in neither this nor `existing_tables` raises `RuntimeError` on read, as a missing table does for the default. |
+| `secrets` | parameter | `Mapping[tuple[str, str], str] \| None` | `None` | Keyword-only. `(scope, key)` to the value `get_secret` returns; copied, so a later change to the caller's mapping is not seen. |
+| `get_secret_calls` | recorded | `list[tuple[str, str]]` | `[]` | `(scope, key)` per `get_secret` call; never the value. |
 | `run_calls` | recorded | `list[tuple[str, int, dict]]` | `[]` | `(name, timeout, args)` per notebook run, including each activity of `run_notebooks_parallel`, whose default timeout is `90`. |
 | `deleted_paths` | recorded | `list[str]` | `[]` | Each path passed to `delete_path`. |
 | `read_delta_calls` | recorded | `list[str]` | `[]` | Each identifier passed to `read_delta`. |
@@ -91,6 +96,7 @@ appended to by one method, for a test to assert on.
 | `drop_delta_calls` | recorded | `list[str]` | `[]` | Each identifier passed to `drop_delta`, which never refuses and never deletes. |
 | `write_delta_create_calls` | recorded | `list[str]` | `[]` | Each identifier passed to `write_delta_create`, which raises `RuntimeError` for one in `existing_tables` or `table_properties` and otherwise adds it to `existing_tables`. |
 | `get_table_properties_calls` | recorded | `list[str]` | `[]` | Each identifier passed to `get_table_properties`. |
+| `add_delta_columns_calls` | recorded | `list[tuple[str, list[str]]]` | `[]` | The identifier and the column names per `add_delta_columns`, which changes nothing. |
 | `set_table_properties_calls` | recorded | `list[tuple[str, dict[str, str]]]` | `[]` | Each identifier and properties passed to `set_table_properties`, which refuses what the default refuses. |
 
 ## See also

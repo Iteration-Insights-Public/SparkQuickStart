@@ -166,7 +166,7 @@ def test_the_package_imports_with_no_platform_sdk_installed() -> None:
 
 
 def test_concrete_adapter_imports_are_defensive() -> None:
-    """Rule platform-boundary §4 — a platform-filtered build must still import."""
+    """Rule platform-boundary §4 — a source copy with an adapter file removed must still import."""
     for rel_path in (
         "src/spark_quick_start/adapters/__init__.py",
         "src/spark_quick_start/spark_logging/__init__.py",
@@ -184,7 +184,7 @@ def test_concrete_adapter_imports_are_defensive() -> None:
         ]
         assert not unguarded, (
             "a concrete platform module is imported without a try/except ImportError "
-            "guard. filter_platform_release.sh physically deletes these files; the "
+            "guard. A source copy may have these files removed; the "
             f"package must still import (rule: platform-boundary §4): {unguarded}"
         )
 
@@ -229,11 +229,8 @@ def test_mock_adapter_overrides_every_abstract_method() -> None:
 def test_every_platform_map_entry_names_a_real_module_path() -> None:
     """A typo in _PLATFORM_MAP is only discoverable at runtime otherwise.
 
-    No "does the file even exist" skip: that tolerance existed only for a
-    platform-filtered checkout, and the architecture suite as a whole is now
-    stripped from filtered builds (release-and-branching, filter_platform_
-    release.sh), so this test never runs there at all. On the trunk this
-    module path must always resolve — a missing file is exactly the typo this
+    No "does the file even exist" skip: the architecture suite describes
+    the complete trunk, so this module path must always resolve — a missing file is exactly the typo this
     test exists to catch, in the other half of the dotted path.
     """
     from spark_quick_start.orchestration.orchestrator import _PLATFORM_MAP

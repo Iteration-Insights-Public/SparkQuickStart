@@ -3,10 +3,90 @@
 Every change a user of the library would notice, newest first. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html); before 1.0, a minor version may break
-the API, and such changes are marked **Breaking**. Each version is released per platform, as
-`v<version>-fabric` and `v<version>-databricks`, from version 0.4.0 on.
+the API, and such changes are marked **Breaking**. What breaks a load context is defined under
+Compatibility in [the load-context reference](docs/reference/load-context.md#compatibility). From
+0.4.1 on, each version is one release for all platforms, tagged `v<version>`.
 
-## [Unreleased] — 0.4.0
+## [Unreleased]
+
+## [0.6.0] — 2026-11-18
+
+### Changed
+
+- Installation points at the public repository, `Iteration-Insights-Public/SparkQuickStart`,
+  which publishes source only: install with `pip` from `git+https` pinned to a commit, or copy
+  `src/` from a clone. The README and the guides no longer link a release download.
+- Feedback goes through GitHub Issues, with a bug and an enhancement form, and questions through
+  GitHub Discussions; the repository does not accept pull requests. `CONTRIBUTING.md`,
+  `SUPPORT.md` and `CODE_OF_CONDUCT.md` are published and say how, and commercial help is at
+  https://iterationinsights.com/contact-us/. Conduct reports go to
+  `opensource@iterationinsights.com`.
+- The top level of `source_context` is the library's, `kind` today, and a source step's own keys
+  go under `properties`, as the custom-source guide now shows. A key beside `kind` is still
+  accepted and handed to the step, but a later release may add a key of its own under that name.
+- **Breaking:** `ExecutionResult.metrics["hwm_value_after"]` moves past a batch only when a writer
+  wrote it. When the pipeline halted, or a registered writer did not run, it now equals
+  `hwm_value_before`; before, it moved to the latest of the rows the source read, and a caller
+  that stored it, as the incremental-load guide says, skipped those rows for good. After a halt
+  because the batch matches the target, the next run reads the same rows again, and the rows read
+  grow with each such run until a writer runs: a source that updates its watermark column without
+  changing the compared columns is re-read from the last write on every run. A custom source that
+  owns the watermark column must set `hwm_before` to the `hwm_context.hwm_value` it was given;
+  one that leaves it `None` reports `None` after a halt, and a caller that stores it reads the
+  whole source again on the next run.
+- `SECURITY.md` asks for the commit you run, or the version if you installed a release, and the
+  package metadata no longer carries a maintainer's email address.
+
+### Removed
+
+- **Breaking:** the old names of the five SCD steps, `TargetTableTransformer`,
+  `IncrementalTargetTableTransformer`, `ChangeDetectorTransformer`,
+  `GracefulChangeDetectorTransformer` and `CandidateVersionGuardTransformer`, deprecated in 0.4.0
+  and due to go in 0.5.0, which shipped them still: importing one now raises `ImportError`. Use
+  the `SCD`-prefixed names.
+
+### Fixed
+
+- A second `run()` on one `LoadOrchestrator` no longer reports the previous run's counts and
+  watermark for a step this run skipped: each step's reported counts and watermark are reset
+  before the steps run. A custom step that sets its counts or watermark only in `__init__`, not in
+  `_run()` or `_produce()`, now reports `None` for them on every run.
+
+## [0.5.0] — 2026-11-13
+
+### Added
+
+- The public API is defined and pinned: every name in the `__all__` of `spark_quick_start`,
+  `orchestration`, `orchestration.transformers`, `adapters`, `logger` and `spark_logging`, with its
+  signature and the subclass hooks and injected services a subclass relies on. A change that
+  removes or changes any of it is marked **Breaking** here.
+- `PlatformAdapter.get_secret(scope, key)` reads a secret through the platform's secret store:
+  a Key Vault on Fabric, a secret scope on Databricks. `LocalAdapter` and `MockPlatformAdapter`
+  take an explicit `secrets` mapping.
+- An optional `source_context` section configures a source step of your own: one required key,
+  `kind`, and any keys of the step's. A load context now names one source, staging notebooks, a
+  `dqd_context` or a `source_context`; `SourceTransformer.source_kind` declares the kind a step
+  reads, and the orchestrator refuses a mismatch before any source runs.
+- `scd_context.scd_type` `landing` and `KeyMergeTransformer`: a landing table holding the latest
+  state of each key, merged on `business_key_column`, ordered by `hwm_context.hwm_column_name`
+  and stamped with the load time in `load_ts_column`. A new source column is added to the table;
+  a retyped one is refused. `PlatformAdapter.add_delta_columns` adds nullable columns.
+
+### Changed
+
+- `staging_context.stages` is not required when `source_context` is given, and `StagingTransformer`
+  refuses an empty list itself when it runs.
+
+## [0.4.1] — 2026-11-13
+
+### Changed
+
+- Releases are no longer built per platform: one release per version, tagged `v<version>`,
+  carries one wheel for Fabric, Databricks and local use, and replaces the separate
+  `-fabric` and `-databricks` releases. The wheel now includes `LocalAdapter` and
+  `local_notebookutils/`; the `local` extra installs what they need.
+
+## [0.4.0] — 2026-11-05
 
 ### Added
 

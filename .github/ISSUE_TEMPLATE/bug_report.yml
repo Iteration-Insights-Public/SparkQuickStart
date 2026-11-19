@@ -1,0 +1,42 @@
+name: Bug report
+description: Something the library does wrong, with what you ran and what you saw.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting. The maintainers fix bugs in their own repository and publish the fix here later; see CONTRIBUTING.md.
+        A security vulnerability goes through SECURITY.md, never a public Issue. Please describe the problem; do not paste a patch.
+  - type: input
+    id: commit
+    attributes:
+      label: Commit
+      description: The commit of this repository you run, as a SHA. A copy of src/ reports its version as 0.0.0+unknown, so the commit is what identifies it.
+      placeholder: 1a2b3c4
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Microsoft Fabric, classic
+        - Microsoft Fabric, serverless
+        - Azure Databricks, classic
+        - Azure Databricks, serverless
+        - Local
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, what happened instead, and the error message or ExecutionResult if there is one.
+    validations:
+      required: true
+  - type: textarea
+    id: load-context
+    attributes:
+      label: Load context
+      description: The smallest load context that shows it, with names and paths made anonymous.
+      render: json

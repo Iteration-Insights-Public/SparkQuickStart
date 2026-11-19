@@ -37,6 +37,11 @@ class FabricAdapter(PlatformAdapter):
         import notebookutils  # type: ignore
         notebookutils.notebook.exit(value)
 
+    def get_secret(self, scope: str, key: str) -> str:
+        """Read secret *key* from the Key Vault at URL *scope* (F221)."""
+        import notebookutils
+        return str(notebookutils.credentials.getSecret(scope, key))
+
     def read_warehouse_view(
         self,
         spark: Any,

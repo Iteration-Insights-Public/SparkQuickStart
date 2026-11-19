@@ -25,7 +25,7 @@ Every constructor parameter after `spark` is keyword-only.
 | `add` | method, `(transformer) -> LoadOrchestrator` | — | — | Appends a step and returns the orchestrator for chaining. The first step must be a source transformer; each later one a process transformer, or a plain callable taking `(DataFrame, LoadContext)` and returning a `DataFrame`, which replaces `state.df`. Nothing is checked here. When `run()` starts it checks that the first step is a source and no later one is; a step that is neither a process transformer nor a callable is found only when the pipeline reaches it, after the steps before it have run, writes included. |
 | `add_if` | method, `(predicate, transformer, label=None) -> LoadOrchestrator` | — | — | Appends `ConditionalTransformer(predicate, transformer, label=label)`: the step runs only when `predicate`, a `bool` or a callable taking the `LoadContext`, is true. Raises `TypeError` here when `predicate` is neither a `bool` nor a callable. |
 | `set_source` | method, `(predicate, source_if_true, source_if_false, label=None) -> LoadOrchestrator` | — | — | Appends `ConditionalSourceTransformer(...)`, which chooses between two sources when the pipeline runs. It must be the first step, as any source must. Raises `TypeError` here when `predicate` is neither a `bool` nor a callable. |
-| `run` | method, `() -> ExecutionResult` | — | — | Parses and validates the load context, runs the steps, collects the metrics and watermark, finalizes the logs and returns the result. Does not raise: a missing step, a source anywhere but first, a step that is neither a transformer nor a callable, and any exception a step raises all become a result with `status` `"error"`. |
+| `run` | method, `() -> ExecutionResult` | — | — | Parses and validates the load context, runs the steps, collects the metrics and watermark, finalizes the logs and returns the result. Does not raise: a missing step, a source anywhere but first, a step that is neither a transformer nor a callable, a source whose `source_kind` the load context's `source_context.kind` does not match (both sources of a `set_source` choice are checked, before either runs), and any exception a step raises all become a result with `status` `"error"`. |
 
 ## `LoadOrchestrator.platform`
 
@@ -39,7 +39,7 @@ adapter with no arguments.
 | `local` | `LocalAdapter` | Local development. Built with no notebook registry or directory, so it cannot run a staging notebook; pass a configured `LocalAdapter` as `adapter` instead when the pipeline has one. |
 
 Any other value raises `ValueError` naming the accepted ones. So does a value whose adapter
-module a platform-filtered build has removed, with a message saying so.
+module missing from this copy of the library, with a message saying so.
 
 ## `default_pipeline`
 

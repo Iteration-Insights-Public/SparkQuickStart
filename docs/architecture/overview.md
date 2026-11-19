@@ -54,7 +54,7 @@ hold any steps.
 
 `LoadOrchestrator` owns one run. Its constructor only records the load-context JSON and resolves
 the adapter; nothing is parsed until `run()`. Resolving the adapter is the one place the entry
-point raises: an unknown `platform`, or one whose adapter a filtered build removed, is a
+point raises: an unknown `platform`, or one whose adapter file this copy of the library lacks, is a
 `ValueError` from the constructor, outside `run()`. `run()` parses and validates the context,
 builds the logger from `logging_context`, injects the Spark session, adapter, logger and metrics
 collector into every transformer (a plain `(DataFrame, LoadContext)` callable gets none, and is not
@@ -71,12 +71,20 @@ built, run, halted, wrapped, given their services and harvested is the
 [pipeline model](pipeline-model.md); every shipped step is on the
 [transformer reference](../reference/transformers.md).
 
+The library is extended by composition, never by registration. A step of your own subclasses
+`SourceTransformer` or `ProcessTransformer` and is added to a pipeline in code; a source the
+library does not ship takes its settings from `source_context` and declares the kind it reads as
+`source_kind`, which the orchestrator checks before any source runs. `KeyMergeTransformer` writes
+such a source to a landing table, the latest state of each key. A package that extends the
+library this way imports only its public API, which `tests/architecture/public_api.txt` pins; the
+library never names that package.
+
 ## The platform boundary
 
 No step, and nothing in `orchestration/`, calls a platform SDK: every notebook run, path deletion
 and Delta read or write goes through `PlatformAdapter`, whose concrete class the orchestrator
-imports by name only when it needs it. How the adapters are shaped, chosen and stripped from a
-single-platform build is the [platform abstraction](platform-abstraction.md).
+imports by name only when it needs it. How the adapters are shaped, chosen and optional in a
+source copy is the [platform abstraction](platform-abstraction.md).
 
 ## Logging and the result
 
@@ -88,9 +96,9 @@ the [execution-result reference](../reference/execution-result.md).
 
 ## Why it is this shape
 
-The audit that checked the current boundaries against the code, and the findings that came from
-it, are in the [2026-09-25 architecture audit](decisions/2026-09-25-architecture-audit.md); the backlog carries
-each finding's history.
+The current boundaries were checked against the code by an audit, and each one is held by a test
+under `tests/architecture/`.
+
 
 ## See also
 

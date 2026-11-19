@@ -2,7 +2,7 @@
 
 ``spark_logging/__init__.py`` imports each platform's persistence adapter inside
 ``try/except ImportError``: the name resolves to ``None`` and stays out of ``__all__`` when
-the module is absent, as a platform-filtered build leaves it (F121, platform-boundary rule 4).
+the module is absent, as a source copy with the file removed leaves it (F121, platform-boundary rule 4).
 On a full checkout every module imports, so only a simulated absence reaches that branch.
 
 The absence is simulated by setting the ``sys.modules`` entry to ``None`` and importing the

@@ -11,7 +11,7 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from pyspark.sql import SparkSession
 
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
         LoggingContext,
         RuntimeContext,
         SCDContext,
+        SourceContext,
         StagingContext,
     )
 
@@ -118,6 +119,9 @@ class LoadContext:
     # without a guard. A LoadContext built by hand without either gets an empty one.
     extensions_ctx: ExtensionsContext = field(default_factory=ExtensionsContext)
     platform_ctx: PlatformContext = field(default_factory=PlatformContext)
+    # Optional: only a load whose source is a step of the user's own has one (F222). Last, so
+    # a LoadContext built positionally keeps its meaning.
+    source_ctx: SourceContext | None = None
 
 
 class _TransformerBase(ABC):
@@ -272,6 +276,11 @@ class SourceTransformer(_TransformerBase):
     Required when ``ctx.scd_ctx.source_system_from_source is True``:
     - ``ctx.scd_ctx.source_system_column``
     """
+
+    #: The ``source_context.kind`` this source reads, or ``None`` for a source that reads none.
+    #: When set, ``LoadOrchestrator`` refuses a load context whose ``source_context`` is absent or
+    #: names another kind, before any source runs (F222).
+    source_kind: ClassVar[str | None] = None
 
     @abstractmethod
     def _produce(self, ctx: LoadContext) -> PipelineState:

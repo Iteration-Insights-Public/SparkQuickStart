@@ -20,8 +20,8 @@ Any change that works on one platform only is a bug unless it sits behind an ada
    implementation when one can be written portably, plus an override per platform and a
    `MockPlatformAdapter` recording stub.
 4. Concrete adapters are imported defensively in `adapters/__init__.py`
-   (`try/except ImportError` → `None` → dropped from `__all__`). Platform-filtered release
-   builds physically delete adapter files; the package must still import. Same pattern in
+   (`try/except ImportError` → `None` → dropped from `__all__`). A source copy may have
+   adapter files removed; the package must still import. Same pattern in
    `spark_logging/__init__.py`.
 5. Adapter resolution from a platform string is lazy via `_PLATFORM_MAP` + `importlib`.
    Adding a platform means one map entry, not a new top-level import.

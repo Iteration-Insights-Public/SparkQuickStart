@@ -6,14 +6,12 @@ description: What a test suite addition looks like here — MockPlatformAdapter,
 # Testing
 
 - Three suites split by scope: `tests/unit/` and `tests/integration/`, each with its own
-  `fabric/`, `databricks/`, `local/` subdirectory for platform-scoped tests (those are
-  stripped by platform-filtered release builds), and `tests/architecture/`, which reads the
+  `fabric/`, `databricks/`, `local/` subdirectory for platform-scoped tests, and `tests/architecture/`, which reads the
   source tree rather than running it. Which suite a test belongs in is a rule, not a
   preference — see `.claude/rules/test-classification.md`.
 - A unit test's adapter is `MockPlatformAdapter`, or a `PlatformAdapter` subclass with the
   abstract methods stubbed when it needs the base class's defaults. `LocalAdapter` writes to real
-  storage, so a test using it is integration and lives under `tests/integration/local/`, which
-  platform-filtered builds strip with the adapter. No test needs Fabric or Databricks. A unit
+  storage, so a test using it is integration and lives under `tests/integration/local/`. No test needs Fabric or Databricks. A unit
   test may take the `spark` fixture when the unit needs an engine:
   Spark is an engine, not a unit of ours (`test-classification.md`). Any test taking the
   fixture is auto-marked `spark`; the fast suite is `-m 'not spark'`.

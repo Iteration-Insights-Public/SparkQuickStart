@@ -14,8 +14,8 @@ description: One JSON load context, each section validating itself. Where new co
 - Each context class owns its own `validate()` and raises `ValueError` naming every
   missing key at once. Validation happens once, up front, before any Spark work.
 - New configuration goes in the context class that owns the concern — e.g. execution
-  concurrency lives in `RuntimeContext`. Moving a field is a breaking change: leave a
-  rejecting branch with a migration message (see `GlobalContext.parallel_execution_enabled`).
+  concurrency lives in `RuntimeContext`. What counts as breaking, and the one change never
+  made in place, are the `context-compatibility` rule's.
 - SCD meta column names resolve **per-column JSON override > `ColumnNamingPolicy` >
   `ColumnNamingPolicy.default()`**. `ColumnNamingPolicy` is the single source of truth;
   never hardcode `"scdHash"` and friends in new code. Every policy field is an SCD meta column

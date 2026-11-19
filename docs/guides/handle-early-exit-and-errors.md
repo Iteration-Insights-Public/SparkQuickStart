@@ -42,7 +42,12 @@ steps are the same on every platform except how the notebook ends, in step 3.
    `SCDCandidateVersionGuardTransformer` instead, runs to the end with nothing new and inserts 0 rows. On an early exit without `hwm_context`, `hwm_value_after` still
    holds the target's watermark, or `None` when there is no target table yet. With
    `hwm_context`, the source step owns it: `StagingTransformer` reports the maximum of the staged
-   rows' `hwm_column_name`, or the incoming `hwm_value` when it staged none.
+   rows' `hwm_column_name`, or the incoming `hwm_value` when it staged none. But on an early exit
+   the watermark does not move: `hwm_value_after` equals `hwm_value_before`, because no writer
+   wrote the batch (F232). The next run reads the same rows again, with any that changed since;
+   while they all match the target, it stops again. So the rows read grow with each such run until
+   a writer runs. That hurts when the source updates `hwm_column_name` without changing the
+   compared columns: every run then re-reads every row touched since the last write.
 
 2. **Find the step that failed.** `result.stages` lists the steps that finished, in order; the
    one after the last of them failed. `error_message` is the exception's text: many of the
@@ -98,7 +103,8 @@ steps are the same on every platform except how the notebook ends, in step 3.
            return state
    ```
 
-   Put it after the source step, before anything that writes; see
+   The watermark stays where it was, so the next run reads the refused rows again. Put it
+   after the source step, before anything that writes; see
    [Write a custom transformer](write-a-custom-transformer.md).
 
 ## Check it worked

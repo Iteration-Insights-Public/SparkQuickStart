@@ -1,4 +1,3 @@
-from spark_quick_start.orchestration.transformers._aliases import SCD_RENAMES, deprecated_aliases
 from spark_quick_start.orchestration.transformers.base import (
     AlwaysRunTransformer,
     LoadContext,
@@ -33,6 +32,7 @@ from spark_quick_start.orchestration.transformers.dv_satellite import (
     DVSatelliteTargetTransformer,
     DVSatelliteWriterTransformer,
 )
+from spark_quick_start.orchestration.transformers.key_merge import KeyMergeTransformer
 from spark_quick_start.orchestration.transformers.materialize import (
     MaterializeFrameTransformer,
     MaterializeTransformer,
@@ -71,6 +71,7 @@ __all__ = [
     "DVSatelliteWriterTransformer",
     "DebugTransformer",
     "HWMProvider",
+    "KeyMergeTransformer",
     "LoadContext",
     "MaterializeFrameTransformer",
     "MaterializeTransformer",
@@ -90,7 +91,3 @@ __all__ = [
     "StagedKeyGuardTransformer",
     "StagingTransformer",
 ]
-
-
-# F155: the pre-rename names still resolve, with a DeprecationWarning (see _aliases.py).
-__getattr__ = deprecated_aliases(__name__, globals(), SCD_RENAMES)

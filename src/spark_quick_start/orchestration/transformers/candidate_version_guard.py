@@ -18,7 +18,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from spark_quick_start.orchestration.transformers._aliases import SCD_RENAMES, deprecated_aliases
 from spark_quick_start.orchestration.transformers._validation import assert_no_dups
 from spark_quick_start.orchestration.transformers.base import ProcessTransformer
 
@@ -84,7 +83,3 @@ class SCDCandidateVersionGuardTransformer(ProcessTransformer):
             serverless=ctx.runtime_ctx.serverless,
         )
         return state
-
-
-# F155: the pre-rename names still resolve, with a DeprecationWarning (see _aliases.py).
-__getattr__ = deprecated_aliases(__name__, globals(), SCD_RENAMES)

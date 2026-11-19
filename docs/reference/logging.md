@@ -34,8 +34,8 @@ call fails, they are dropped, and the constructor's `correlation_id`, `pipeline_
 
 ## `spark_quick_start.spark_logging`
 
-The package's `__all__` lists these classes and functions. A platform-filtered build removes the
-other platform's persistence adapter: it is left out of `__all__`, and its name, imported
+The package's `__all__` lists these classes and functions. A source copy missing a platform's
+persistence adapter file leaves it out of `__all__`, and its name, imported
 explicitly, is `None`.
 
 | Name | Kind | Meaning |

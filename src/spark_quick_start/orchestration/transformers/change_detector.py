@@ -53,7 +53,6 @@ from typing import TYPE_CHECKING
 
 from pyspark.sql import functions as F
 
-from spark_quick_start.orchestration.transformers._aliases import SCD_RENAMES, deprecated_aliases
 from spark_quick_start.orchestration.transformers._constants import (
     CHANGE_TYPE as _CHANGE_TYPE,
 )
@@ -457,7 +456,3 @@ class SCDGracefulChangeDetectorTransformer(SCDChangeDetectorTransformer):
     def _hash_column_expr(self, hash_cols: list[str], separator: str) -> Column:
         """Return the graceful trailing-null-trimmed hash expression."""
         return _graceful_hash_expr(hash_cols, self._hash_null_token, separator)
-
-
-# F155: the pre-rename names still resolve, with a DeprecationWarning (see _aliases.py).
-__getattr__ = deprecated_aliases(__name__, globals(), SCD_RENAMES)

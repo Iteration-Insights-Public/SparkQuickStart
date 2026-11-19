@@ -5,8 +5,8 @@ Fabric/Databricks deployments use it via orchestrator_logger.py whenever
 the configured log_file_dir is a locally-mounted path (/Volumes/...,
 /dbfs/..., /tmp/..., etc. — accessible via pathlib without dbutils, and
 the correct Serverless-safe choice per the comment in
-OrchestratorLogger.from_logging_context()). It therefore ships on every
-platform-filtered release branch, unlike LocalAdapter and
+OrchestratorLogger.from_logging_context()). It therefore stays in
+every source copy, even one without the platform files, unlike LocalAdapter and
 local_notebookutils, which are genuinely local-dev/CI-only. Lives at
 tests/unit/ root (not tests/unit/local/) for that reason.
 """

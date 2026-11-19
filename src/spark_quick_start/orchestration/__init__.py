@@ -27,6 +27,7 @@ from spark_quick_start.orchestration.models import (
     PlatformContext,
     RuntimeContext,
     SCDContext,
+    SourceContext,
     StagingContext,
 )
 from spark_quick_start.orchestration.orchestrator import LoadOrchestrator
@@ -49,6 +50,7 @@ from spark_quick_start.orchestration.transformers import (
     DVSatelliteIncrementalTargetTransformer,
     DVSatelliteTargetTransformer,
     DVSatelliteWriterTransformer,
+    KeyMergeTransformer,
     LoadContext,
     NativeSCDMergeTransformer,
     ProcessTransformer,
@@ -60,7 +62,6 @@ from spark_quick_start.orchestration.transformers import (
     StagedKeyGuardTransformer,
     StagingTransformer,
 )
-from spark_quick_start.orchestration.transformers._aliases import SCD_RENAMES, deprecated_aliases
 from spark_quick_start.orchestration.transformers.state import PipelineState
 
 __all__ = [
@@ -83,6 +84,7 @@ __all__ = [
     "ExecutionResult",
     "ExtensionsContext",
     "GlobalContext",
+    "KeyMergeTransformer",
     "LoadContext",
     "LoadContextManager",
     "LoadOrchestrator",
@@ -97,6 +99,7 @@ __all__ = [
     "SCDContext",
     "SCDGracefulChangeDetectorTransformer",
     "SCDTargetTableTransformer",
+    "SourceContext",
     "SourceTransformer",
     "StagedKeyGuardTransformer",
     "StagingContext",
@@ -106,7 +109,3 @@ __all__ = [
     "dv_link_pipeline",
     "dv_satellite_pipeline",
 ]
-
-
-# F155: the pre-rename names still resolve, with a DeprecationWarning (see _aliases.py).
-__getattr__ = deprecated_aliases(__name__, globals(), SCD_RENAMES)

@@ -360,7 +360,8 @@ class GlobalContext:
 
     Any other key outside ``_RESERVED`` raises ``ValueError`` too, naming the key, the accepted
     keys and ``extensions_context``, where the user's own data goes. A misspelt key is therefore
-    an error, not a value the load silently never reads. Only this section is strict.
+    an error, not a value the load silently never reads. ``hwm_context`` and ``dqd_context`` are
+    strict too; every other section ignores a key it does not read.
     """
 
     _RESERVED: frozenset = frozenset({
@@ -495,6 +496,63 @@ class ExtensionsContext:
         return f"ExtensionsContext({dict(self._data)!r})"
 
 
+class SourceContext(ExtensionsContext):
+    """The configuration of a source step the library does not ship (F222).
+
+    Built from the ``source_context`` section: a JSON object whose one required key, ``kind``,
+    is a non-empty string naming the source, such as ``"business_central"``. The top level is the
+    library's; the step's own keys go under ``properties``, which the library never reads, and the
+    step checks them itself, before it calls anything (F233). A key beside ``kind`` is still
+    accepted and handed to the step, since refusing it would break a load context the library
+    accepted, but a later release may claim its name. It reads like ``ExtensionsContext``: a
+    read-only mapping over a deep copy.
+
+    A load context names one kind of source: ``staging_context.stages``, ``dqd_context`` or
+    ``source_context`` (``LoadContextManager.validate_all``). A source step that declares
+    ``source_kind`` is refused at composition unless this section's ``kind`` equals it.
+    """
+
+    __slots__ = ()
+
+    def __init__(self, data: Mapping[str, Any] | None = None) -> None:
+        kind = (data or {}).get("kind")
+        if not isinstance(kind, str) or not kind.strip():
+            raise ValueError(
+                f"source_context.kind must be a non-empty string naming the source, got {kind!r}"
+            )
+        super().__init__(data)
+
+    @classmethod
+    def from_raw(cls, raw: Any) -> SourceContext:
+        """Build from the parsed section, refusing anything that is not a JSON object.
+
+        Raises:
+            ValueError: if *raw* is not a ``dict``, or its ``kind`` is missing, empty or not a
+                string.
+        """
+        if not isinstance(raw, dict):
+            raise ValueError(
+                f"source_context must be a JSON object (dict), got {type(raw).__name__}"
+            )
+        return cls(raw)
+
+    @property
+    def kind(self) -> str:
+        """The source's name, as the source step's ``source_kind`` declares it."""
+        return str(self._data["kind"])
+
+    def __reduce__(self) -> tuple[Any, ...]:
+        return (SourceContext, (self.to_dict(),))
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SourceContext) and dict(self._data) == dict(other._data)
+
+    __hash__ = None
+
+    def __repr__(self) -> str:
+        return f"SourceContext({dict(self._data)!r})"
+
+
 @dataclass(frozen=True)
 class PlatformContext:
     """What the library knows about where it runs, filled by it and never by the user.
@@ -522,12 +580,13 @@ class StagingContext:
     def __init__(self, data: dict[str, Any]) -> None:
         self.stages: list[dict[str, Any]] = data.get("stages", [])
 
-    def validate(self, *, has_dqd: bool = False) -> None:
+    def validate(self, *, has_dqd: bool = False, has_source: bool = False) -> None:
         if not self.stages:
-            if not has_dqd:
+            if not (has_dqd or has_source):
                 raise ValueError(
-                    "staging_context.stages must contain at least one staging phase. "
-                    "If the source is a DQD, supply a dqd_context."
+                    "the load context names no source: give staging_context.stages (staging "
+                    "notebooks), a dqd_context (a declared query) or a source_context (a source "
+                    "step of your own)."
                 )
             return
         for idx, stage in enumerate(self.stages):
@@ -541,7 +600,11 @@ class StagingContext:
                 )
 
 
-_VALID_SCD_TYPES = frozenset({"scd1", "scd2", "dv_hub", "dv_satellite", "dv_link"})
+_VALID_SCD_TYPES = frozenset({"scd1", "scd2", "dv_hub", "dv_satellite", "dv_link", "landing"})
+# A landing table holds the latest state of each key, no history (F223). It takes the business
+# key and the load-time column, a Data Vault key otherwise; every other style's key is refused.
+_LANDING = "landing"
+_LANDING_KEYS = frozenset({"scd_type", "business_key_column", "load_ts_column"})
 # The Data Vault styles (F156; the accepted design of 2026-10-01); dv_link since F167.
 _DATA_VAULT_TYPES = frozenset({"dv_hub", "dv_satellite", "dv_link"})
 _HASH_ALGORITHMS = Constants.DV_HASH_ALGORITHMS
@@ -662,16 +725,29 @@ class SCDContext:
                 "loads only. Compose the steps of the load's own style."
             )
 
+    def require_scd_type(self, step: str, scd_type: str) -> None:
+        """Refuse any ``scd_type`` but *scd_type* in a step built for one style (F223).
+
+        Raises:
+            ValueError: naming the step, the style it is for, and the load's.
+        """
+        if self.scd_type != scd_type:
+            raise ValueError(
+                f"{step}: scd_context.scd_type is {self.scd_type!r}; this step is for "
+                f"{scd_type!r} loads only. Compose the steps of the load's own style."
+            )
+
     def require_scd_style(self, step: str) -> None:
         """Refuse a Data Vault style in a step built for SCD, before it reads anything (F156).
 
         Raises:
             ValueError: naming the step, the style and what to use instead.
         """
-        if self.is_data_vault:
+        if self.is_data_vault or self.scd_type == _LANDING:
+            kind = "a Data Vault style" if self.is_data_vault else "a landing table"
             raise ValueError(
-                f"{step}: scd_context.scd_type is {self.scd_type!r}, a Data Vault style; this step "
-                "is for the SCD styles (scd1, scd2). Compose the Data Vault steps for this load."
+                f"{step}: scd_context.scd_type is {self.scd_type!r}, {kind}; this step is for the "
+                "SCD styles (scd1, scd2). Compose the steps of the load's own style."
             )
 
 
@@ -711,7 +787,20 @@ class SCDContext:
         self._validate_hash_separator()
         # A key of the other style is refused rather than ignored (F156): a setting that has no
         # effect reads as one that does.
-        if self.is_data_vault:
+        if self.scd_type == _LANDING:
+            # Any other key would be a setting with no effect, such as load_type "Full" (F223 review).
+            foreign = sorted(self._given_keys - _LANDING_KEYS)
+            if foreign:
+                raise ValueError(
+                    f"scd_context.{foreign[0]} is not a landing key: scd_type 'landing' takes "
+                    f"business_key_column and load_ts_column only; remove {foreign}."
+                )
+            if not isinstance(self.load_ts_column, str) or not self.load_ts_column.strip():
+                raise ValueError(
+                    "scd_context.load_ts_column is empty; a landing table is stamped with it, so "
+                    "name the column or leave the key out for its default."
+                )
+        elif self.is_data_vault:
             foreign = [k for k in _SCD_ONLY_KEYS if k in self._given_keys]
             if foreign:
                 raise ValueError(
@@ -784,7 +873,10 @@ class SCDContext:
             "effective_to_column": self.effective_to_column,
             "correlation_id_column": self.correlation_id_column,
         }
-        if self.is_data_vault:
+        if self.scd_type == _LANDING:
+            # A landing table writes the key, the source's columns and the load time, nothing else.
+            meta = {"load_ts_column": self.load_ts_column}
+        elif self.is_data_vault:
             meta |= {"load_ts_column": self.load_ts_column, "load_end_ts_column": self.load_end_ts_column}
             if self.pipeline_run_id_column:
                 meta["pipeline_run_id_column"] = self.pipeline_run_id_column

@@ -15,7 +15,7 @@ are for macOS and Linux shells.
 ## Steps
 
 1. **Clone the repository and create a virtual environment inside it**, then activate it. Branch
-   from `main` for your change, never from a `release/*` branch: those are build outputs
+   from `main` for your change
    ([release and branching](../../.claude/rules/release-and-branching.md)).
 
    ```bash
@@ -65,7 +65,6 @@ are for macOS and Linux shells.
    SQS_FAIL_ON_SKIP=1 pytest tests/unit -n 6 --dist loadfile -rs
    SQS_FAIL_ON_SKIP=1 pytest tests/integration -n 6 --dist loadfile --no-cov -rs
    SQS_FAIL_ON_SKIP=1 pytest tests/architecture --no-cov -rs
-   scripts/verify_trunk_complete.sh
    python scripts/mypy_baseline.py
    python scripts/check_mermaid.py
    ```
@@ -92,16 +91,9 @@ are for macOS and Linux shells.
    ~/.venvs/spark-quick-start-ci/bin/python scripts/mypy_baseline.py
    ```
 
-   The Fabric-only and Databricks-only builds rewrite the checkout, so they run on GitHub, and
-   only when started by hand. Start them on `main` before a release, or on your branch after a
-   change that could break a platform-filtered tree, such as one to `adapters/__init__.py`:
+   Which suite a new test belongs in is in
+   [test classification](../../.claude/rules/test-classification.md).
 
-   ```bash
-   gh workflow run platform-builds.yaml -f platform=both --ref main
-   ```
-
-   What each gate answers is in [verification](../../.claude/workflow/verification.md), and which suite a new
-   test belongs in is in [test classification](../../.claude/rules/test-classification.md).
 
 5. **Optionally, run the suite in Docker, as CI does.** The image installs the lock and fetches
    the Delta jars when it is built, so the tests run with no network. `SQS_FAIL_ON_SKIP=1` turns

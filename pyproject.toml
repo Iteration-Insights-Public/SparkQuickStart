@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "spark_quick_start"
-version = "0.4.0"
+version = "0.6.0"
 description = "Microsoft Fabric & Databricks data engineering utilities (SCD, DQD, logging, orchestration)"
 # Exactly README.md: pyproject and the file must agree in case, or a Linux build finds no
 # readme and ships an empty long description (F45, F52). tests/architecture checks both.
@@ -12,7 +12,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [{ name = "Iteration Insights" }]
-maintainers = [{ name = "Valentyn Masyakin", email = "val.masyakin@iterationinsights.com" }]
+maintainers = [{ name = "Valentyn Masyakin" }]
 keywords = ["pyspark", "etl", "data-engineering", "spark", "fabric", "databricks"]
 classifiers = [
   "Development Status :: 4 - Beta",

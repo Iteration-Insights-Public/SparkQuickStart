@@ -131,6 +131,10 @@ class DatabricksAdapter(PlatformAdapter):
         """Call dbutils.notebook.exit with the given value."""
         _get_dbutils().notebook.exit(value)
 
+    def get_secret(self, scope: str, key: str) -> str:
+        """Read secret *key* from the secret scope *scope* (F221)."""
+        return str(_get_dbutils().secrets.get(scope=scope, key=key))
+
     def get_log_persistence_adapter(self) -> Any:
         """Return DatabricksPersistenceAdapter for DBFS/Unity Catalog log file writes."""
         from spark_quick_start.spark_logging import DatabricksPersistenceAdapter

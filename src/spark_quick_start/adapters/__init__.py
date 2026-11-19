@@ -8,10 +8,9 @@ Import from here for a stable, platform-agnostic entry point::
     )
 
 Concrete adapters (``FabricAdapter``, ``DatabricksAdapter``, ``LocalAdapter``)
-are optional at the file level: platform-filtered release builds ship only
-the adapter(s) relevant to that platform, so each is imported defensively and
-resolves to ``None`` (and is dropped from ``__all__``) when its module isn't
-present in this checkout.
+are optional at the file level: a source copy of ``src/`` may have had a
+file removed, so each is imported defensively and resolves to ``None`` (and
+is dropped from ``__all__``) when its module isn't present in this copy.
 """
 from spark_quick_start.adapters.platform_adapter import MockPlatformAdapter, PlatformAdapter
 

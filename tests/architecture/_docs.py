@@ -194,13 +194,19 @@ def tables(text: str) -> list[list[list[str]]]:
 def table_row_links(text: str) -> list[str]:
     """The link destinations in the first cell of every body row of every table in *text*, in
     document order. A link elsewhere in a row, in a header or in prose is not a row's (F79)."""
-    found: list[str] = []
+    return [dest for table in table_row_links_by_table(text) for dest in table]
+
+
+def table_row_links_by_table(text: str) -> list[list[str]]:
+    """table_row_links(), one list per table with a body, in document order."""
+    found: list[list[str]] = []
     tokens = _tokens(text)
     in_body = False
     cell = 0
     for index, token in enumerate(tokens):
         if token.type == "tbody_open":
             in_body = True
+            found.append([])
         elif token.type == "tbody_close":
             in_body = False
         elif token.type == "tr_open":
@@ -209,8 +215,8 @@ def table_row_links(text: str) -> list[str]:
             cell += 1
             following = tokens[index + 1]
             if cell == 1 and following.type == "inline":
-                found += [child.attrGet("href") or "" for child in following.children or []
-                          if child.type == "link_open"]
+                found[-1] += [child.attrGet("href") or "" for child in following.children or []
+                              if child.type == "link_open"]
     return found
 
 

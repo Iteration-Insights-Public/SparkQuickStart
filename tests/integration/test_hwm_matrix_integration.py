@@ -119,6 +119,7 @@ def _append_only_tx(*, ran: bool) -> NativeSCDAppendOnlyTransformer:
     t = NativeSCDAppendOnlyTransformer()
     if ran:
         t.inserted = 4
+        t.updated = 0  # what its _run sets; without it the writer did not run (F117, F232)
         t.hwm_before = "2024-05-01 00:00:00.000000"
         t.hwm_after = SCD_HWM
         t.hwm_column = "scdEffectiveFrom"

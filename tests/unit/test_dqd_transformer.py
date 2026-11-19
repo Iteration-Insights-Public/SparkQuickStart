@@ -255,7 +255,7 @@ def test_with_nothing_new_the_watermark_stays(spark, customers):
 
 def _portable_adapter() -> PlatformAdapter:
     """The base class's own defaults, with its abstract methods stubbed. Not LocalAdapter: the
-    platform-filtered builds delete local_adapter.py and still run this module (F140 review)."""
+    a source copy may lack local_adapter.py and still run this module (F140 review)."""
     stubs = {name: (lambda self, *a, **k: None) for name in PlatformAdapter.__abstractmethods__}
     return type("_PortableAdapter", (PlatformAdapter,), stubs)()
 

@@ -21,13 +21,13 @@ SparkQuickStart/
 │   └── reference/             # configuration and API reference, held to the code
 ├── reference_design/          # reference notebooks for local runs; Fabric and Databricks ones to come
 ├── data/                      # sample Delta tables for local runs
-├── scripts/                   # release filtering and its pyproject strip, trunk check, mypy baseline, mermaid check
-├── .claude/                   # agent instructions: rules, standards, skills, commands, backlog
-├── .github/                   # CI and release workflows, and CODEOWNERS
+├── scripts/                   # mypy baseline and mermaid check; the export scripts stay private
+├── .claude/                   # agent rules and standards; skills, commands and backlog stay private
+├── .github/                   # issue forms; CI, release workflows and CODEOWNERS stay private
 ├── CLAUDE.md                  # the always-loaded instruction index
 ├── README.md                  # the project's front door
 ├── CHANGELOG.md               # what changed in each version
-├── CONTRIBUTING.md            # how to contribute
+├── CONTRIBUTING.md            # how to report a bug or an idea
 ├── CODE_OF_CONDUCT.md         # the code of conduct, by link
 ├── SECURITY.md                # how to report a vulnerability
 ├── SUPPORT.md                 # where to get help
@@ -52,7 +52,7 @@ submodule imports, sets `__version__` from the installed metadata (`0.0.0+unknow
 
 | Module | Responsibility |
 |---|---|
-| `adapters/` | The adapter package; imports each concrete adapter defensively, so a single-platform build still imports. |
+| `adapters/` | The adapter package; imports each concrete adapter defensively, so a source copy with an adapter file removed still imports. |
 | `adapters/platform_adapter.py` | `PlatformAdapter`, the platform interface, and `MockPlatformAdapter`, its recording test double. |
 | `adapters/fabric_adapter.py` | `FabricAdapter`, through `notebookutils`. |
 | `adapters/databricks_adapter.py` | `DatabricksAdapter`, through `dbutils`. |
@@ -85,7 +85,6 @@ submodule imports, sets `__version__` from the installed metadata (`0.0.0+unknow
 | `orchestration/transformers/_constants.py` | The names steps share, routing columns and the target frame key, and `Constants`, the transformers' copy of the one in `models.py`. |
 | `orchestration/transformers/_pipeline.py` | Re-exports the Delta and SCD functions steps may call. |
 | `orchestration/transformers/_validation.py` | `assert_no_dups`, and nothing else. |
-| `orchestration/transformers/_aliases.py` | The deprecated names of the steps F155 gave an `SCD` prefix, resolved with a warning; never in `__all__`. |
 | `orchestration/transformers/_hashing.py` | The Data Vault hash diff (`hash_hex`, sha256 or md5 hex) and the seal of its settings on a table. |
 | `orchestration/transformers/_scd_seal.py` | The seal of an SCD table's flag values, open-row sentinel and hash separator: compared before the merge and append-only writers write, set after. |
 | `orchestration/transformers/_dqd.py` | Re-exports the DQD expression library, the one module that imports it. |
@@ -101,6 +100,7 @@ submodule imports, sets `__version__` from the installed metadata (`0.0.0+unknow
 | `orchestration/transformers/candidate_guard.py` | `CandidateGuardTransformer`. |
 | `orchestration/transformers/candidate_version_guard.py` | `SCDCandidateVersionGuardTransformer`. |
 | `orchestration/transformers/native_scd.py` | `NativeSCDMergeTransformer` and `NativeSCDAppendOnlyTransformer`. |
+| `orchestration/transformers/key_merge.py` | `KeyMergeTransformer`, the landing table's writer: the latest state of each key, merged on the business key. |
 | `orchestration/transformers/conditional.py` | `ConditionalTransformer`. |
 | `orchestration/transformers/materialize.py` | `MaterializeTransformer` and `MaterializeFrameTransformer`. |
 | `orchestration/transformers/debug.py` | `DebugTransformer`. |

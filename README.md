@@ -6,7 +6,7 @@ orchestration, SCD handling, logging and platform plumbing for every table, you 
 load in a JSON load context and run it through one tested pipeline, the same on both platforms.
 
 > **Project status: Public Preview / Beta.** The framework is actively used and developed, but its
-> API may change before 1.0. Pin a release version rather than tracking `main`.
+> API may change before 1.0. Pin a commit rather than tracking `main`.
 
 ## Why Spark Quick Start
 
@@ -51,6 +51,10 @@ steps, so a pipeline that keeps them keeps the policy.
   ([guide](docs/guides/load-a-table-with-a-dqd.md)): from a parquet landing folder, a catalog view or a Delta table, with new,
   cast and renamed columns, one row in and one row out. It suits Bronze, and Silver tables that
   need no joins or aggregation.
+- **Sources of your own, landed raw.** A source step you write reads its settings from
+  `source_context` and its secrets through the adapter, and `KeyMergeTransformer` keeps the latest
+  state of each record in a landing table that Bronze then reads
+  ([guide](docs/guides/write-a-custom-source.md)).
 - **Structured logging and results.** Every run writes through one `OrchestratorLogger` and
   returns an `ExecutionResult` your pipeline can read, with per-step timings and counts.
 - **Platform abstraction.** Every platform call goes through a `PlatformAdapter`, so the same load
@@ -110,9 +114,9 @@ development and CI. The library code is the same everywhere; only the adapter di
 | Notebook execution   | `notebookutils` |   `dbutils`   | registered callables, or `.ipynb` files from `notebooks_dir` |
 | Delta Lake           |        ✓        |        ✓        |                         `delta-spark`                         |
 
-The platform release wheels leave out `LocalAdapter` and the `local` extra. To develop or test
-locally, use a source copy or a checkout of `main`, as the guide
-[Test without a cluster](docs/guides/test-without-a-cluster.md) shows.
+The one package ships `LocalAdapter` too, so the same install runs on a laptop; a local run
+also needs the `local` extra, which installs PySpark, `delta-spark` and `nbformat`. To develop
+or test locally, see the guide [Test without a cluster](docs/guides/test-without-a-cluster.md).
 
 **Self-hosted Spark.** Because the core is platform-neutral PySpark reached only through a
 `PlatformAdapter`, the loading engine — SCD, Data Vault, DQD, logging and orchestration — can run
@@ -124,23 +128,24 @@ execution. There is no wheel and no SLA for it.
 
 ## Installation
 
-Install a pinned release from its GitHub Release. Each platform is released separately, as
-`v<version>-fabric` or `v<version>-databricks`, with one wheel; pick a version on the
-[Releases page](https://github.com/Iteration-Insights-Enterprise/FabricQuickstart/releases).
+The public repository,
+[Iteration-Insights-Public/SparkQuickStart](https://github.com/Iteration-Insights-Public/SparkQuickStart),
+publishes source only, with no release builds yet. Install from it pinned to a commit, so a
+later publication cannot change what you run. Replace `<commit>` with a commit SHA from its
+history:
 
 ```bash
-# Microsoft Fabric: in a %pip cell or an environment's library list
-pip install https://github.com/Iteration-Insights-Enterprise/FabricQuickstart/releases/download/v<version>-fabric/spark_quick_start-<version>-py3-none-any.whl
-
-# Azure Databricks: in a %pip cell or a cluster library
-pip install https://github.com/Iteration-Insights-Enterprise/FabricQuickstart/releases/download/v<version>-databricks/spark_quick_start-<version>-py3-none-any.whl
+# Fabric or Databricks: in a %pip cell (the runtime needs outbound access to GitHub)
+pip install "spark_quick_start @ git+https://github.com/Iteration-Insights-Public/SparkQuickStart@<commit>"
 ```
 
 The library needs Python 3.11 or later (`requires-python = ">=3.11"` in `pyproject.toml`) and
 PySpark; it has no other mandatory dependency.
 
-Or copy the `src/` directory into your environment (a lakehouse `Files` folder, a Workspace
-folder or a checkout) and put it on `sys.path`. Nothing is installed but PySpark. With no
+Or copy the `src/` directory of a clone
+(`git clone https://github.com/Iteration-Insights-Public/SparkQuickStart.git`) into your
+environment (a lakehouse `Files` folder, a Workspace folder or a checkout) and put it on
+`sys.path`. Nothing is installed but PySpark. With no
 `spark_quick_start` distribution installed, the package reports `__version__` as `0.0.0+unknown`;
 with one installed, it reports that distribution's version, which need not be the copy's:
 
@@ -192,10 +197,9 @@ To try a complete project, deploy a reference design: the
 
 ## Project status and releases
 
-The project is a Public Preview / Beta: the API may change before 1.0, so pin a release. Releases
-are built separately for Fabric and Databricks from one platform-neutral codebase; how, and why,
-is on the [release branches](docs/architecture/release-branches.md) page. What changed in each
-version is in the [changelog](CHANGELOG.md).
+The project is a Public Preview / Beta: the API may change before 1.0, so pin a commit. What
+changed in each version is in the [changelog](CHANGELOG.md).
+
 
 ## Documentation
 
@@ -213,13 +217,18 @@ Architecture, guides and reference live under [docs/](docs/README.md). Most read
 
 ## Support and contributing
 
-The framework is provided as open-source software. Use GitHub Issues for bugs and enhancement
-requests; community support is best effort, and the project does not include a commercial support
-SLA. Organizations that need architecture, implementation, customization or production support
-can engage Iteration Insights separately; see [SUPPORT.md](SUPPORT.md).
+The framework is provided as open-source software. Open a GitHub Issue for a bug or an
+enhancement request, and start a GitHub Discussion for a question. Community support is best
+effort, and the project does not include a commercial support SLA. Organizations that need
+architecture, implementation, customization or production support can
+[contact Iteration Insights](https://iterationinsights.com/contact-us/); see
+[SUPPORT.md](SUPPORT.md).
 
-Report a security vulnerability privately, as [SECURITY.md](SECURITY.md) describes. To contribute,
-read [CONTRIBUTING.md](CONTRIBUTING.md) and the [code of conduct](CODE_OF_CONDUCT.md).
+The maintainers take feedback in Issues and Discussions and make the changes themselves, so the
+repository does not accept pull requests; [CONTRIBUTING.md](CONTRIBUTING.md) says how to report
+something so it can be acted on. Report a security vulnerability privately, as
+[SECURITY.md](SECURITY.md) describes. Everyone taking part follows the
+[code of conduct](CODE_OF_CONDUCT.md).
 
 ## About Iteration Insights
 

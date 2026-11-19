@@ -61,7 +61,10 @@ a user of the library whose entity is loaded from staging notebooks; a load from
    ```
 
 6. **Hand the watermark to the next run.** Store `result.metrics["hwm_value_after"]` wherever
-   your pipeline keeps state, and put it in the next run's `hwm_context`:
+   your pipeline keeps state, after every successful run, an early exit included, and put it in
+   the next run's `hwm_context`. It moves past the rows only when a writer wrote them: after a
+   halt, or when no writer ran, it equals `hwm_value_before`, so the next run reads the same rows
+   again rather than skipping them:
 
    ```json
    {"hwm_context": {"hwm_column_name": "modified_at", "hwm_value": "2026-09-02 10:00:00"}}

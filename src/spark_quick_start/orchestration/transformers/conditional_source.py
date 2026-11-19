@@ -65,6 +65,11 @@ class ConditionalSourceTransformer(SourceTransformer):
         self.selected_source: SourceTransformer | None = None
 
     @property
+    def sources(self) -> tuple[SourceTransformer, SourceTransformer]:
+        """Both sources the predicate chooses between, ``(source_if_true, source_if_false)``."""
+        return (self._source_if_true, self._source_if_false)
+
+    @property
     def _name(self) -> str:
         return self._label or (
             f"{type(self._source_if_true).__name__}|{type(self._source_if_false).__name__}"

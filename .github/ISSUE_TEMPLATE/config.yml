@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a question
+    url: https://github.com/Iteration-Insights-Public/SparkQuickStart/discussions
+    about: Questions and how-to go to GitHub Discussions.
+  - name: Report a security vulnerability
+    url: https://github.com/Iteration-Insights-Public/SparkQuickStart/security/advisories/new
+    about: Privately, never in a public Issue; see SECURITY.md.
+  - name: Commercial help
+    url: https://iterationinsights.com/contact-us/
+    about: Architecture, implementation, customization or production support from Iteration Insights.

@@ -22,12 +22,13 @@ The top-level sections.
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `global_context` | object | required | What entity to load and where. Read by `GlobalContext`. |
-| `staging_context` | object | `{}` | The staging notebooks to run. Read by `StagingContext`. Required unless `dqd_context` is set. |
+| `staging_context` | object | `{}` | The staging notebooks to run. Read by `StagingContext`. Required unless `dqd_context` or `source_context` is set. |
 | `scd_context` | object | required | SCD behaviour and column names. Read by `SCDContext`. |
 | `runtime_context` | object | required | Run identity and execution switches. Read by `RuntimeContext`. |
 | `logging_context` | object | required | Where and how the run logs. Read by `LoggingContext`. |
 | `dqd_context` | object | none | A Declarative Query Definition, read by `DQDTransformer` as the source. Read by `DQDContext`. A load with it needs no staging notebooks. Raises `ValueError` when present and not an object. |
 | `hwm_context` | object | none | The load's watermark. Read by `HWMContext`. Handed to each staging notebook and reported by `StagingTransformer`, or applied as a filter and reported by `DQDTransformer`. Raises `ValueError` when present and not an object, and together with a `dqd_context` when `scd_context.load_type` is `Full`. |
+| `source_context` | object | none | The configuration of a source step of your own, which the library does not ship. Read by `SourceContext`. A load names one source: `staging_context.stages`, `dqd_context` or this. Raises `ValueError` when present and not an object, when its `kind` is missing, empty or not a string, and when `staging_context.stages` or `dqd_context` is set beside it. With none of the three, `ValueError` names all three. |
 | `extensions_context` | object | `{}` | Your own data: policies, rules and parameters for custom transformers and pipeline control. The library never interprets it. Read by `ExtensionsContext`; handed whole to each staging notebook. Raises `ValueError` when present and not an object. |
 
 The placeholders `{DataStorageLakehouse}` and `{DataEngineeringLakehouse}` anywhere in the JSON
@@ -69,7 +70,8 @@ What entity to load and where.
 
 Any other key raises `ValueError`, naming the key, the keys `global_context` accepts and
 `extensions_context`, where your own data goes: a misspelt key is an error, not a value the load
-never reads. Only this section is strict. `parallel_execution_enabled` here raises `ValueError`
+never reads. `hwm_context` and `dqd_context` are strict too; every other section ignores a key it
+does not read. `parallel_execution_enabled` here raises `ValueError`
 with its own message: it belongs in `runtime_context`. The two lakehouse paths the library
 resolves are not here; they are in [`PlatformContext`](#platformcontext).
 
@@ -191,7 +193,7 @@ The staging notebooks to run.
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `stages` | list of objects | `[]` | The staging phases, run in order or in parallel (see `runtime_context.parallel_execution_enabled`). Must hold at least one stage unless `dqd_context` is set. |
+| `stages` | list of objects | `[]` | The staging phases, run in order or in parallel (see `runtime_context.parallel_execution_enabled`). Must hold at least one stage unless `dqd_context` or `source_context` is set. `StagingTransformer` raises `ValueError` when it runs with none. |
 
 ## `StagingContext.stages`
 
@@ -226,13 +228,13 @@ step inside `.add_if()`. A `dv_hub` load runs through `dv_hub_pipeline` and a `d
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `business_key_column` | `str` | required | The staged column that identifies an entity across loads. An SCD target is matched on it together with the source system column; a Data Vault target on it alone, as the hash key built upstream. Missing or blank raises `ValueError`. |
-| `scd_type` | `str` | `"scd2"` | `scd1` overwrites a changed row, updating every business column and the current flag, effective-from, hash, deleted flag, version and correlation id columns, and leaving the row key, effective-to and source system columns as written, and flags a deleted row (deleted flag `deleted_flag_value`, `"Y"` by default, effective-from and correlation id stamped) while keeping its business columns, hash and version. Upgrading: SCD1 once ignored deletes, so the first `Full` load after this behaviour flags every target key that went missing in the meantime; each such row gets a new effective-from, so `updated_count` and the watermark jump once. An `Incremental` load flags only the deletes in its own batch: a key whose delete arrived in an earlier batch stays live. The meta columns are told from business columns by the names below, never by a `scd` prefix; `scd2` closes it out and inserts a new version. `dv_hub`, `dv_satellite` and `dv_link` are the Data Vault styles; a `dv_link` load runs through `dv_link_pipeline`. Case-sensitive; any other value raises `ValueError`. |
+| `scd_type` | `str` | `"scd2"` | `scd1` overwrites a changed row, updating every business column and the current flag, effective-from, hash, deleted flag, version and correlation id columns, and leaving the row key, effective-to and source system columns as written, and flags a deleted row (deleted flag `deleted_flag_value`, `"Y"` by default, effective-from and correlation id stamped) while keeping its business columns, hash and version. Upgrading: SCD1 once ignored deletes, so the first `Full` load after this behaviour flags every target key that went missing in the meantime; each such row gets a new effective-from, so `updated_count` and the watermark jump once. An `Incremental` load flags only the deletes in its own batch: a key whose delete arrived in an earlier batch stays live. The meta columns are told from business columns by the names below, never by a `scd` prefix; `scd2` closes it out and inserts a new version. `dv_hub`, `dv_satellite` and `dv_link` are the Data Vault styles; a `dv_link` load runs through `dv_link_pipeline`. `landing` is a landing table, the latest state of each key with no history, written by `KeyMergeTransformer`: it takes `business_key_column` and `load_ts_column` and refuses every other style's key, and needs an `hwm_context`, whose column orders a key's rows. Case-sensitive; any other value raises `ValueError`. |
 | `load_type` | `str` | `"Incremental"` | `Incremental` or `Full`. A `Full` load also classifies target rows absent from the source as deleted, unless their current row is already deleted, and raises `ValueError` rather than run when the source is empty and the target is not. Case-sensitive; any other value raises `ValueError`. |
 | `exclude_from_hash` | list of `str` | `[]` | Source columns left out of the change hash, so a change to them alone is not a new version. The business key, source system, correlation id, deleted flag and row key columns are always left out, and so is `source_deleted_flag_column` when set. A source that carries the version or hash column raises `ValueError`. |
 | `source_deleted_flag_column` | `str` | none | A source column that flags deleted rows, where it equals `source_deleted_flag_value`; NULL or any other value means not deleted. It wins over a staged `deleted_flag_column`, which is then dropped. It is excluded from the hash and from the output. A flagged row with a matching target row is classified as deleted unless the target's current row is already deleted (a NULL target flag counts as not deleted), so a flag that stays set adds one version, not one per load (F142); on a first load, when no target row matches, and when the target row is already deleted, flagged rows are skipped. A flagged row is skipped even if its other columns changed: they return with the undelete. Raises `ValueError` when the source has no such column. |
 | `source_system_from_source` | `bool` | `false` | When true, the source system column comes from the source rows, which must then carry it, rather than from `global_context.source_system`. Under a Data Vault style it is an attribute written to `RecordSource`, not part of the key: `StagedKeyGuardTransformer` refuses one key from two sources in a batch. |
 | `hash_algorithm` | `str` | `"sha256"` | Data Vault styles only, sealed on the table by `DVHubWriterTransformer`, `DVLinkWriterTransformer` and `DVSatelliteWriterTransformer`, and computing the satellite's diff in `DVSatelliteChangeDetectorTransformer`: the hash diff's algorithm, `sha256` or `md5`, as lower-case hex. Any other value raises `ValueError`. |
-| `load_ts_column` | `str` | `"LoadTS"` | Data Vault styles only, written by `DVHubWriterTransformer`, `DVLinkWriterTransformer` and `DVSatelliteWriterTransformer`: the column holding the run's load time, `global_context.load_timestamp`, the same for every row it writes. An empty name raises `ValueError`. |
+| `load_ts_column` | `str` | `"LoadTS"` | Data Vault styles and `landing` only, written by `DVHubWriterTransformer`, `DVLinkWriterTransformer`, `DVSatelliteWriterTransformer` and `KeyMergeTransformer`: the column holding the run's load time, `global_context.load_timestamp`, the same for every row it writes. An empty name raises `ValueError`. |
 | `load_end_ts_column` | `str` | `"LoadEndTS"` | Data Vault styles only, written by `DVHubWriterTransformer`, `DVLinkWriterTransformer` and `DVSatelliteWriterTransformer`: the column holding when the writer started writing; an audit stamp of the load, not the end of a row's life. An empty name raises `ValueError`. |
 | `pipeline_run_id_column` | `str` | none | Data Vault styles only, written by `DVHubWriterTransformer`, `DVLinkWriterTransformer` and `DVSatelliteWriterTransformer`: when set, the column the writer fills with `runtime_context.pipeline_run_id`. |
 | `link_hub_key_columns` | list of `str` | none | `dv_link` only, and required there: the staged columns holding the hash key of each hub the link connects. At least two, distinct ignoring case, none the business key, source system, correlation id or a load column; a NULL or empty value in any of them is refused by `StagedKeyGuardTransformer`. Set under another style, or invalid, raises `ValueError` naming it. |
@@ -387,7 +389,8 @@ the next run's `hwm_value`. When the section is set, each staging notebook recei
 `hwm_context`, and a staging function gets it as a parameter only when its signature declares
 `hwm_context` and it can be passed by keyword; see `create_staging_main_function`.
 `StagingTransformer` reports `hwm_value` as the run's `hwm_value_before` and the latest
-`hwm_column_name` among the staged rows as `hwm_value_after`. `DQDTransformer` first filters its
+`hwm_column_name` among the staged rows as `hwm_value_after`, unless the pipeline halted or a
+registered writer did not run, when `hwm_value_after` stays at `hwm_value` (F232). `DQDTransformer` first filters its
 source to `hwm_column_name > hwm_value`, the value cast to the column's type, then reports the
 same way; so a DQD load with this section must be `Incremental`, and `validate_all` refuses
 `Full`. With this section set, the run's
@@ -446,6 +449,34 @@ two teams' steps do not collide. Keep the section small: it rides in every stagi
 | `to_dict` | method, `() -> dict` | none | A deep copy of the section. |
 | `from_raw` | classmethod, `(raw) -> ExtensionsContext` | none | Builds one from the parsed section. Raises `ValueError` when `raw` is not an object. |
 
+## `SourceContext`
+
+The configuration of a source step of your own, in the `source_context` section: a step the
+library does not ship, such as a connector that reads an application's API. The top level of the
+section is the library's: today it holds one key, `kind`, which names the source. The step's own
+keys go under `properties`, an object the library never reads, so the step checks them itself
+before it calls anything. A key written beside `kind` is still accepted and handed to the step, but
+a later release may add a key of its own to the top level, under the same name. It is available to a
+step as `ctx.source_ctx`, which is `None` for a load without the section, and reads like
+[`ExtensionsContext`](#extensionscontext): a read-only mapping over a deep copy. A source step
+declares the kind it reads as its class attribute `source_kind`, and `LoadOrchestrator` refuses a
+load context whose `source_context.kind` differs, before any source runs. The section is not
+handed to staging notebooks: a load with it has none. A landing load still carries
+`global_context.staging_table_path` and `scd_context.business_key_column`, which
+`GlobalContext` and `SCDContext` require even where nothing reads them (F219). The step reads its
+keys as `ctx.source_ctx["properties"]`:
+
+```json
+{"source_context": {"kind": "business_central", "properties": {"entity": "customers"}}}
+```
+
+| Member | Type | Default | Meaning |
+|---|---|---|---|
+| `kind` | property, `str` | required | The source's name. Must be a non-empty string; anything else raises `ValueError` naming `source_context.kind`. |
+| `get` | method, `(key, default=None) -> Any` | none | The value for `key`, or `default`. Indexing with `[]` raises `KeyError` for a missing key; `in`, `len` and iteration work as on a mapping. |
+| `to_dict` | method, `() -> dict` | none | A deep copy of the section. |
+| `from_raw` | classmethod, `(raw) -> SourceContext` | none | Builds one from the parsed section. Raises `ValueError` when `raw` is not an object or its `kind` is invalid. |
+
 ## `PlatformContext`
 
 What the library knows about where it runs, in the `platform_context` section. You never write it:
@@ -460,3 +491,29 @@ gives the staging function from there.
 | `data_storage_lakehouse_path` | `str` | `""` | The data storage lakehouse path; the value `{DataStorageLakehouse}` is replaced with. |
 | `data_engineering_lakehouse_path` | `str` | `""` | The data engineering lakehouse path; the value `{DataEngineeringLakehouse}` is replaced with. |
 | `to_dict` | method, `() -> dict` | none | Both paths, as a staging notebook receives them. |
+
+## Compatibility
+
+The load context is written by pipelines that do not change when the library is released, so
+each change to it is judged by what it does to a load context written for the previous release.
+From 1.0, a breaking change bumps the major version, and a patch or minor release never breaks a
+load context the previous release accepted. Before 1.0, a breaking change bumps at least the
+minor, and the changelog marks it **Breaking**. 0.4.0 is the last release to change a field's
+default or meaning in place; see its changelog entry when upgrading from 0.3.
+
+| Change | Breaking? |
+|---|---|
+| New optional field with a default | No |
+| New optional section | No |
+| An existing field or section accepts a value or key it refused | No |
+| New required field or section | Yes. An older load context fails validation. |
+| An existing field or section refuses a value or key it accepted | Yes. An older load context fails validation. |
+| Rename or move a field | Yes. The old spelling is refused, with a message naming the new one. |
+| Remove a field or section | Yes, always. The old key is refused with a message naming the way on, as `dqf_context` is. |
+| Same field, new default or new meaning | Never made after 0.4.0. The old load context would parse and silently produce different output, and SCD history already written would stay wrong. The new behaviour gets a new field, the old field is refused with a migration message, as `parallel_execution_enabled` under `global_context` is, and the version is bumped as for any breaking change. |
+
+The other direction is not protected. A load context written for a newer release and run on an
+older one fails on a new key in `global_context`, `hwm_context` or `dqd_context`, which refuse
+keys they do not read. A new key in any other section, or a new top-level section, is ignored
+without a message, so the setting appears to be on and is not. Upgrade the library before the
+pipeline that writes the new key.

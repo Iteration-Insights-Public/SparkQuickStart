@@ -1,0 +1,1335 @@
+spark_quick_start.ColumnNamingPolicy bases (builtins.object)
+spark_quick_start.ColumnNamingPolicy class(row_key_column: 'str', hash_column: 'str', version_column: 'str', effective_from_column: 'str', effective_to_column: 'str', current_flag_column: 'str', deleted_flag_column: 'str', source_system_column: 'str', correlation_id_column: 'str') -> None
+spark_quick_start.ColumnNamingPolicy dataclass frozen=True eq=True order=False
+spark_quick_start.ColumnNamingPolicy.__eq__ method(self, other)
+spark_quick_start.ColumnNamingPolicy.__hash__ method(self)
+spark_quick_start.ColumnNamingPolicy.correlation_id_column annotation str
+spark_quick_start.ColumnNamingPolicy.current_flag_column annotation str
+spark_quick_start.ColumnNamingPolicy.data_vault classmethod() -> 'ColumnNamingPolicy'
+spark_quick_start.ColumnNamingPolicy.default classmethod() -> 'ColumnNamingPolicy'
+spark_quick_start.ColumnNamingPolicy.deleted_flag_column annotation str
+spark_quick_start.ColumnNamingPolicy.effective_from_column annotation str
+spark_quick_start.ColumnNamingPolicy.effective_to_column annotation str
+spark_quick_start.ColumnNamingPolicy.hash_column annotation str
+spark_quick_start.ColumnNamingPolicy.row_key_column annotation str
+spark_quick_start.ColumnNamingPolicy.source_system_column annotation str
+spark_quick_start.ColumnNamingPolicy.version_column annotation str
+spark_quick_start.adapters.DatabricksAdapter bases (spark_quick_start.adapters.PlatformAdapter)
+spark_quick_start.adapters.DatabricksAdapter class()
+spark_quick_start.adapters.DatabricksAdapter.add_delta_columns method(self, spark: 'SparkSession', identifier: 'str', fields: 'Sequence[StructField]') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.delete_path method(self, path: 'str') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.delta_table_exists method(self, spark: 'SparkSession', identifier: 'str') -> 'bool'
+spark_quick_start.adapters.DatabricksAdapter.drop_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.get_current_notebook_name method(self) -> 'str | None'
+spark_quick_start.adapters.DatabricksAdapter.get_log_persistence_adapter method(self) -> 'Any'
+spark_quick_start.adapters.DatabricksAdapter.get_secret method(self, scope: 'str', key: 'str') -> 'str'
+spark_quick_start.adapters.DatabricksAdapter.get_table_properties method(self, spark: 'SparkSession', identifier: 'str') -> 'dict[str, str]'
+spark_quick_start.adapters.DatabricksAdapter.is_table_identifier method(self, identifier: 'str') -> 'bool'
+spark_quick_start.adapters.DatabricksAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.path_has_content method(self, spark: 'SparkSession', path: 'str') -> 'bool'
+spark_quick_start.adapters.DatabricksAdapter.read_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.DatabricksAdapter.read_parquet method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.DatabricksAdapter.read_table method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.DatabricksAdapter.read_warehouse_view method(self, spark: 'SparkSession', identifier: 'str', *, workspace_id: 'str | None' = None, lakehouse_id: 'str | None' = None) -> 'DataFrame'
+spark_quick_start.adapters.DatabricksAdapter.resolve_delta_table method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.DatabricksAdapter.run_notebook method(self, name: 'str', timeout: 'int', args: 'dict[str, Any]') -> 'str'
+spark_quick_start.adapters.DatabricksAdapter.run_notebooks_parallel method(self, dag: 'dict[str, Any]') -> 'dict[str, Any]'
+spark_quick_start.adapters.DatabricksAdapter.set_table_properties method(self, spark: 'SparkSession', identifier: 'str', properties: 'Mapping[str, str]') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.write_delta_append method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.write_delta_create method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.DatabricksAdapter.write_delta_overwrite method(self, df: 'DataFrame', identifier: 'str', overwrite_schema: 'bool' = False) -> 'None'
+spark_quick_start.adapters.FabricAdapter bases (spark_quick_start.adapters.PlatformAdapter)
+spark_quick_start.adapters.FabricAdapter class()
+spark_quick_start.adapters.FabricAdapter.add_delta_columns method(self, spark: 'SparkSession', identifier: 'str', fields: 'Sequence[StructField]') -> 'None'
+spark_quick_start.adapters.FabricAdapter.delete_path method(self, path: 'str') -> 'None'
+spark_quick_start.adapters.FabricAdapter.delta_table_exists method(self, spark: 'SparkSession', identifier: 'str') -> 'bool'
+spark_quick_start.adapters.FabricAdapter.drop_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'None'
+spark_quick_start.adapters.FabricAdapter.get_current_notebook_name method(self) -> 'str | None'
+spark_quick_start.adapters.FabricAdapter.get_log_persistence_adapter method(self) -> 'Any'
+spark_quick_start.adapters.FabricAdapter.get_secret method(self, scope: 'str', key: 'str') -> 'str'
+spark_quick_start.adapters.FabricAdapter.get_table_properties method(self, spark: 'SparkSession', identifier: 'str') -> 'dict[str, str]'
+spark_quick_start.adapters.FabricAdapter.is_table_identifier method(self, identifier: 'str') -> 'bool'
+spark_quick_start.adapters.FabricAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.adapters.FabricAdapter.path_has_content method(self, spark: 'SparkSession', path: 'str') -> 'bool'
+spark_quick_start.adapters.FabricAdapter.read_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.FabricAdapter.read_parquet method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.FabricAdapter.read_table method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.FabricAdapter.read_warehouse_view method(self, spark: 'Any', identifier: 'str', *, workspace_id: 'str | None' = None, lakehouse_id: 'str | None' = None) -> 'Any'
+spark_quick_start.adapters.FabricAdapter.resolve_delta_table method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.FabricAdapter.run_notebook method(self, name: 'str', timeout: 'int', args: 'dict[str, Any]') -> 'str'
+spark_quick_start.adapters.FabricAdapter.run_notebooks_parallel method(self, dag: 'dict[str, Any]') -> 'dict[str, Any]'
+spark_quick_start.adapters.FabricAdapter.set_table_properties method(self, spark: 'SparkSession', identifier: 'str', properties: 'Mapping[str, str]') -> 'None'
+spark_quick_start.adapters.FabricAdapter.write_delta_append method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.FabricAdapter.write_delta_create method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.FabricAdapter.write_delta_overwrite method(self, df: 'DataFrame', identifier: 'str', overwrite_schema: 'bool' = False) -> 'None'
+spark_quick_start.adapters.LocalAdapter bases (spark_quick_start.adapters.PlatformAdapter)
+spark_quick_start.adapters.LocalAdapter class(base_path: 'str' = '', notebook_registry: 'dict[str, Callable[[dict[str, Any]], str]] | None' = None, current_notebook_name: 'str | None' = None, notebooks_dir: 'str | None' = None, *, secrets: 'Mapping[tuple[str, str], str] | None' = None) -> 'None'
+spark_quick_start.adapters.LocalAdapter.add_delta_columns method(self, spark: 'SparkSession', identifier: 'str', fields: 'Sequence[StructField]') -> 'None'
+spark_quick_start.adapters.LocalAdapter.base_path instance attribute
+spark_quick_start.adapters.LocalAdapter.delete_path method(self, path: 'str') -> 'None'
+spark_quick_start.adapters.LocalAdapter.delta_table_exists method(self, spark: 'SparkSession', identifier: 'str') -> 'bool'
+spark_quick_start.adapters.LocalAdapter.drop_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'None'
+spark_quick_start.adapters.LocalAdapter.get_current_notebook_name method(self) -> 'str | None'
+spark_quick_start.adapters.LocalAdapter.get_log_persistence_adapter method(self) -> 'Any'
+spark_quick_start.adapters.LocalAdapter.get_secret method(self, scope: 'str', key: 'str') -> 'str'
+spark_quick_start.adapters.LocalAdapter.get_table_properties method(self, spark: 'SparkSession', identifier: 'str') -> 'dict[str, str]'
+spark_quick_start.adapters.LocalAdapter.is_table_identifier method(self, identifier: 'str') -> 'bool'
+spark_quick_start.adapters.LocalAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.adapters.LocalAdapter.path_has_content method(self, spark: 'SparkSession', path: 'str') -> 'bool'
+spark_quick_start.adapters.LocalAdapter.read_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.LocalAdapter.read_parquet method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.LocalAdapter.read_table method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.LocalAdapter.read_warehouse_view method(self, spark: 'SparkSession', identifier: 'str', *, workspace_id: 'str | None' = None, lakehouse_id: 'str | None' = None) -> 'DataFrame'
+spark_quick_start.adapters.LocalAdapter.resolve_delta_table method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.LocalAdapter.run_notebook method(self, name: 'str', timeout: 'int', args: 'dict[str, Any]') -> 'str'
+spark_quick_start.adapters.LocalAdapter.run_notebooks_parallel method(self, dag: 'dict[str, Any]') -> 'dict[str, Any]'
+spark_quick_start.adapters.LocalAdapter.set_table_properties method(self, spark: 'SparkSession', identifier: 'str', properties: 'Mapping[str, str]') -> 'None'
+spark_quick_start.adapters.LocalAdapter.write_delta_append method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.LocalAdapter.write_delta_create method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.LocalAdapter.write_delta_overwrite method(self, df: 'DataFrame', identifier: 'str', overwrite_schema: 'bool' = False) -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter bases (spark_quick_start.adapters.PlatformAdapter)
+spark_quick_start.adapters.MockPlatformAdapter class(notebook_results: 'dict[str, str] | None' = None, current_nb_name: 'str | None' = 'TestNotebook', raise_on_delete: 'bool' = False, delta_read_result: 'Any | None' = None, existing_tables: 'set | None' = None, non_empty_paths: 'set[str] | None' = None, table_properties: 'dict[str, dict[str, str]] | None' = None, *, secrets: 'Mapping[tuple[str, str], str] | None' = None) -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.add_delta_columns method(self, spark: 'SparkSession', identifier: 'str', fields: 'Sequence[StructField]') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.add_delta_columns_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.delete_path method(self, path: 'str') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.deleted_paths instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.delta_table_exists method(self, spark: 'SparkSession', identifier: 'str') -> 'bool'
+spark_quick_start.adapters.MockPlatformAdapter.delta_table_exists_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.drop_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.drop_delta_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.get_current_notebook_name method(self) -> 'str | None'
+spark_quick_start.adapters.MockPlatformAdapter.get_log_persistence_adapter method(self) -> 'Any | None'
+spark_quick_start.adapters.MockPlatformAdapter.get_secret method(self, scope: 'str', key: 'str') -> 'str'
+spark_quick_start.adapters.MockPlatformAdapter.get_secret_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.get_table_properties method(self, spark: 'SparkSession', identifier: 'str') -> 'dict[str, str]'
+spark_quick_start.adapters.MockPlatformAdapter.get_table_properties_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.is_table_identifier method(self, identifier: 'str') -> 'bool'
+spark_quick_start.adapters.MockPlatformAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.path_has_content method(self, spark: 'SparkSession', path: 'str') -> 'bool'
+spark_quick_start.adapters.MockPlatformAdapter.path_has_content_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.read_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.MockPlatformAdapter.read_delta_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.read_parquet method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.MockPlatformAdapter.read_parquet_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.read_table method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.MockPlatformAdapter.read_table_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.read_warehouse_view method(self, spark: 'SparkSession', identifier: 'str', *, workspace_id: 'str | None' = None, lakehouse_id: 'str | None' = None) -> 'Any'
+spark_quick_start.adapters.MockPlatformAdapter.read_warehouse_view_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.resolve_delta_table method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.MockPlatformAdapter.resolve_delta_table_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.run_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.run_notebook method(self, name: 'str', timeout: 'int', args: 'dict[str, Any]') -> 'str'
+spark_quick_start.adapters.MockPlatformAdapter.run_notebooks_parallel method(self, dag: 'dict[str, Any]') -> 'dict[str, Any]'
+spark_quick_start.adapters.MockPlatformAdapter.set_table_properties method(self, spark: 'SparkSession', identifier: 'str', properties: 'Mapping[str, str]') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.set_table_properties_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.write_delta_append method(self, df: 'Any', identifier: 'str') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.write_delta_append_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.write_delta_create method(self, df: 'Any', identifier: 'str') -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.write_delta_create_calls instance attribute
+spark_quick_start.adapters.MockPlatformAdapter.write_delta_overwrite method(self, df: 'Any', identifier: 'str', overwrite_schema: 'bool' = False) -> 'None'
+spark_quick_start.adapters.MockPlatformAdapter.write_delta_overwrite_calls instance attribute
+spark_quick_start.adapters.PlatformAdapter abstract (delete_path, get_current_notebook_name, run_notebook, run_notebooks_parallel)
+spark_quick_start.adapters.PlatformAdapter bases (abc.ABC)
+spark_quick_start.adapters.PlatformAdapter class()
+spark_quick_start.adapters.PlatformAdapter.add_delta_columns method(self, spark: 'SparkSession', identifier: 'str', fields: 'Sequence[StructField]') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.delete_path method(self, path: 'str') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.delta_table_exists method(self, spark: 'SparkSession', identifier: 'str') -> 'bool'
+spark_quick_start.adapters.PlatformAdapter.drop_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.get_current_notebook_name method(self) -> 'str | None'
+spark_quick_start.adapters.PlatformAdapter.get_log_persistence_adapter method(self) -> 'Any | None'
+spark_quick_start.adapters.PlatformAdapter.get_secret method(self, scope: 'str', key: 'str') -> 'str'
+spark_quick_start.adapters.PlatformAdapter.get_table_properties method(self, spark: 'SparkSession', identifier: 'str') -> 'dict[str, str]'
+spark_quick_start.adapters.PlatformAdapter.is_table_identifier method(self, identifier: 'str') -> 'bool'
+spark_quick_start.adapters.PlatformAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.path_has_content method(self, spark: 'SparkSession', path: 'str') -> 'bool'
+spark_quick_start.adapters.PlatformAdapter.read_delta method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.PlatformAdapter.read_parquet method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.PlatformAdapter.read_table method(self, spark: 'SparkSession', identifier: 'str') -> 'DataFrame'
+spark_quick_start.adapters.PlatformAdapter.read_warehouse_view method(self, spark: 'SparkSession', identifier: 'str', *, workspace_id: 'str | None' = None, lakehouse_id: 'str | None' = None) -> 'DataFrame'
+spark_quick_start.adapters.PlatformAdapter.resolve_delta_table method(self, spark: 'SparkSession', identifier: 'str') -> 'Any'
+spark_quick_start.adapters.PlatformAdapter.run_notebook method(self, name: 'str', timeout: 'int', args: 'dict[str, Any]') -> 'str'
+spark_quick_start.adapters.PlatformAdapter.run_notebooks_parallel method(self, dag: 'dict[str, Any]') -> 'dict[str, Any]'
+spark_quick_start.adapters.PlatformAdapter.set_table_properties method(self, spark: 'SparkSession', identifier: 'str', properties: 'Mapping[str, str]') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.write_delta_append method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.write_delta_create method(self, df: 'DataFrame', identifier: 'str') -> 'None'
+spark_quick_start.adapters.PlatformAdapter.write_delta_overwrite method(self, df: 'DataFrame', identifier: 'str', overwrite_schema: 'bool' = False) -> 'None'
+spark_quick_start.logger.OrchestratorLogger bases (builtins.object)
+spark_quick_start.logger.OrchestratorLogger class(name: 'str' = 'orchestrator', level: 'Any' = 'INFO', *, correlation_id: 'str | None' = None, notebook_name: 'str | None' = None, pipeline_name: 'str | None' = None, log_session: 'Any | None' = None, verbose: 'bool' = False) -> 'None'
+spark_quick_start.logger.OrchestratorLogger.debug method(self, msg: 'str', *, tags: 'dict[str, str] | None' = None, metrics: 'list[dict[str, Any]] | None' = None, **kwargs: 'Any') -> 'None'
+spark_quick_start.logger.OrchestratorLogger.error method(self, msg: 'str', *, tags: 'dict[str, str] | None' = None, metrics: 'list[dict[str, Any]] | None' = None, **kwargs: 'Any') -> 'None'
+spark_quick_start.logger.OrchestratorLogger.finalize method(self, success: 'bool' = True) -> 'str'
+spark_quick_start.logger.OrchestratorLogger.from_logging_context classmethod(logging_context: 'LoggingContext', correlation_id: 'str', adapter: 'PlatformAdapter', pipeline_name: 'str | None' = None) -> 'OrchestratorLogger'
+spark_quick_start.logger.OrchestratorLogger.info method(self, msg: 'str', *, tags: 'dict[str, str] | None' = None, metrics: 'list[dict[str, Any]] | None' = None, important: 'bool' = False, **kwargs: 'Any') -> 'None'
+spark_quick_start.logger.OrchestratorLogger.warning method(self, msg: 'str', *, tags: 'dict[str, str] | None' = None, metrics: 'list[dict[str, Any]] | None' = None, **kwargs: 'Any') -> 'None'
+spark_quick_start.orchestration.CandidateGuardTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.CandidateGuardTransformer class(*, sample_n: 'int' = 5) -> 'None'
+spark_quick_start.orchestration.CandidateGuardTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.CandidateGuardTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.CandidateGuardTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.CandidateGuardTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.CandidateGuardTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.CandidateGuardTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.CandidateGuardTransformer._stage_index annotation int
+spark_quick_start.orchestration.CandidateGuardTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.CandidateGuardTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.ColumnNamingPolicy bases (builtins.object)
+spark_quick_start.orchestration.ColumnNamingPolicy class(row_key_column: 'str', hash_column: 'str', version_column: 'str', effective_from_column: 'str', effective_to_column: 'str', current_flag_column: 'str', deleted_flag_column: 'str', source_system_column: 'str', correlation_id_column: 'str') -> None
+spark_quick_start.orchestration.ColumnNamingPolicy dataclass frozen=True eq=True order=False
+spark_quick_start.orchestration.ColumnNamingPolicy.__eq__ method(self, other)
+spark_quick_start.orchestration.ColumnNamingPolicy.__hash__ method(self)
+spark_quick_start.orchestration.ColumnNamingPolicy.correlation_id_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.current_flag_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.data_vault classmethod() -> 'ColumnNamingPolicy'
+spark_quick_start.orchestration.ColumnNamingPolicy.default classmethod() -> 'ColumnNamingPolicy'
+spark_quick_start.orchestration.ColumnNamingPolicy.deleted_flag_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.effective_from_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.effective_to_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.hash_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.row_key_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.source_system_column annotation str
+spark_quick_start.orchestration.ColumnNamingPolicy.version_column annotation str
+spark_quick_start.orchestration.ConditionalTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.ConditionalTransformer class(predicate: 'Predicate', transformer: 'ProcessTransformer', label: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.ConditionalTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.ConditionalTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.ConditionalTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.ConditionalTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.ConditionalTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.ConditionalTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.ConditionalTransformer._stage_index annotation int
+spark_quick_start.orchestration.ConditionalTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.ConditionalTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.Constants bases (builtins.object)
+spark_quick_start.orchestration.Constants class()
+spark_quick_start.orchestration.Constants.ANSI_ENABLED annotation bool
+spark_quick_start.orchestration.Constants.ANSI_ENABLED constant False
+spark_quick_start.orchestration.Constants.COL_CORRELATION_ID annotation str
+spark_quick_start.orchestration.Constants.COL_CORRELATION_ID constant 'scdCorrelationId'
+spark_quick_start.orchestration.Constants.COL_CURRENT_FLAG annotation str
+spark_quick_start.orchestration.Constants.COL_CURRENT_FLAG constant 'scdCurrentFlag'
+spark_quick_start.orchestration.Constants.COL_DELETED_FLAG annotation str
+spark_quick_start.orchestration.Constants.COL_DELETED_FLAG constant 'scdDeletedFlag'
+spark_quick_start.orchestration.Constants.COL_EFFECTIVE_FROM annotation str
+spark_quick_start.orchestration.Constants.COL_EFFECTIVE_FROM constant 'scdEffectiveFrom'
+spark_quick_start.orchestration.Constants.COL_EFFECTIVE_TO annotation str
+spark_quick_start.orchestration.Constants.COL_EFFECTIVE_TO constant 'scdEffectiveTo'
+spark_quick_start.orchestration.Constants.COL_HASH annotation str
+spark_quick_start.orchestration.Constants.COL_HASH constant 'scdHash'
+spark_quick_start.orchestration.Constants.COL_ROW_KEY annotation str
+spark_quick_start.orchestration.Constants.COL_ROW_KEY constant 'scdRowKey'
+spark_quick_start.orchestration.Constants.COL_SOURCE_SYSTEM annotation str
+spark_quick_start.orchestration.Constants.COL_SOURCE_SYSTEM constant 'scdSourceSystem'
+spark_quick_start.orchestration.Constants.COL_VERSION annotation str
+spark_quick_start.orchestration.Constants.COL_VERSION constant 'scdVersion'
+spark_quick_start.orchestration.Constants.DEFAULT_MAX_TIMESTAMP annotation str
+spark_quick_start.orchestration.Constants.DEFAULT_MAX_TIMESTAMP constant '2999-12-31 23:59:59.999999'
+spark_quick_start.orchestration.Constants.DV_HASH_ALGORITHMS annotation tuple[str, ...]
+spark_quick_start.orchestration.Constants.DV_HASH_ALGORITHMS constant ('sha256', 'md5')
+spark_quick_start.orchestration.Constants.DV_HASH_SEPARATOR annotation str
+spark_quick_start.orchestration.Constants.DV_HASH_SEPARATOR constant '||'
+spark_quick_start.orchestration.Constants.DV_LOAD_END_TS_COLUMN annotation str
+spark_quick_start.orchestration.Constants.DV_LOAD_END_TS_COLUMN constant 'LoadEndTS'
+spark_quick_start.orchestration.Constants.DV_LOAD_TS_COLUMN annotation str
+spark_quick_start.orchestration.Constants.DV_LOAD_TS_COLUMN constant 'LoadTS'
+spark_quick_start.orchestration.Constants.EXCLUDE_COLUMNS annotation tuple[str, ...]
+spark_quick_start.orchestration.Constants.EXCLUDE_COLUMNS constant ('NotebookName',)
+spark_quick_start.orchestration.Constants.FLAG_CURRENT annotation str
+spark_quick_start.orchestration.Constants.FLAG_CURRENT constant 'Y'
+spark_quick_start.orchestration.Constants.FLAG_DELETED annotation str
+spark_quick_start.orchestration.Constants.FLAG_DELETED constant 'Y'
+spark_quick_start.orchestration.Constants.FLAG_INACTIVE annotation str
+spark_quick_start.orchestration.Constants.FLAG_INACTIVE constant 'N'
+spark_quick_start.orchestration.Constants.FLAG_NOT_DELETED annotation str
+spark_quick_start.orchestration.Constants.FLAG_NOT_DELETED constant 'N'
+spark_quick_start.orchestration.Constants.HASH_NULL_TOKEN annotation str
+spark_quick_start.orchestration.Constants.HASH_NULL_TOKEN constant '<NULL>'
+spark_quick_start.orchestration.Constants.HASH_SEPARATOR annotation str
+spark_quick_start.orchestration.Constants.HASH_SEPARATOR constant '~'
+spark_quick_start.orchestration.Constants.NOTEBOOK_TIMEOUT_SECONDS annotation int
+spark_quick_start.orchestration.Constants.NOTEBOOK_TIMEOUT_SECONDS constant 90
+spark_quick_start.orchestration.Constants.PARALLEL_EXECUTION_ENABLED annotation int
+spark_quick_start.orchestration.Constants.PARALLEL_EXECUTION_ENABLED constant 0
+spark_quick_start.orchestration.DQDTransformer bases (spark_quick_start.orchestration.SourceTransformer)
+spark_quick_start.orchestration.DQDTransformer class(dqd_definition: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DQDTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DQDTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DQDTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DQDTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DQDTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DQDTransformer._stage_index annotation int
+spark_quick_start.orchestration.DQDTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DQDTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.DQDTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.DQDTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.DQDTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.DQDTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DQDTransformer.source_count instance attribute
+spark_quick_start.orchestration.DQDTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.DQDTransformer.source_kind declaration None
+spark_quick_start.orchestration.DQDTransformer.target_count instance attribute
+spark_quick_start.orchestration.DVHubTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVHubTargetTransformer class()
+spark_quick_start.orchestration.DVHubTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVHubTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVHubTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVHubTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVHubTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVHubTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVHubTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVHubTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVHubTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVHubTargetTransformer.data_vault_style declaration 'dv_hub'
+spark_quick_start.orchestration.DVHubWriterTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVHubWriterTransformer class() -> 'None'
+spark_quick_start.orchestration.DVHubWriterTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVHubWriterTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVHubWriterTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVHubWriterTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVHubWriterTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVHubWriterTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVHubWriterTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVHubWriterTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVHubWriterTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVHubWriterTransformer.data_vault_style declaration 'dv_hub'
+spark_quick_start.orchestration.DVHubWriterTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.DVHubWriterTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.DVHubWriterTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.DVHubWriterTransformer.inserted instance attribute
+spark_quick_start.orchestration.DVHubWriterTransformer.updated instance attribute
+spark_quick_start.orchestration.DVLinkTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVLinkTargetTransformer class()
+spark_quick_start.orchestration.DVLinkTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVLinkTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVLinkTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVLinkTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVLinkTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVLinkTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVLinkTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVLinkTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVLinkTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVLinkTargetTransformer.data_vault_style declaration 'dv_link'
+spark_quick_start.orchestration.DVLinkWriterTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVLinkWriterTransformer class() -> 'None'
+spark_quick_start.orchestration.DVLinkWriterTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVLinkWriterTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVLinkWriterTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVLinkWriterTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVLinkWriterTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVLinkWriterTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVLinkWriterTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVLinkWriterTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVLinkWriterTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVLinkWriterTransformer.data_vault_style declaration 'dv_link'
+spark_quick_start.orchestration.DVLinkWriterTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.DVLinkWriterTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.DVLinkWriterTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.DVLinkWriterTransformer.inserted instance attribute
+spark_quick_start.orchestration.DVLinkWriterTransformer.updated instance attribute
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer class()
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVSatelliteChangeDetectorTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer class()
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVSatelliteIncrementalTargetTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.DVSatelliteTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVSatelliteTargetTransformer class()
+spark_quick_start.orchestration.DVSatelliteTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVSatelliteTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVSatelliteTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVSatelliteTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVSatelliteTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVSatelliteTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVSatelliteTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVSatelliteTargetTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DVSatelliteWriterTransformer class() -> 'None'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DVSatelliteWriterTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DVSatelliteWriterTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DVSatelliteWriterTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DVSatelliteWriterTransformer._stage_index annotation int
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.inserted instance attribute
+spark_quick_start.orchestration.DVSatelliteWriterTransformer.updated instance attribute
+spark_quick_start.orchestration.DebugTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.DebugTransformer class(label: 'str' = '', *, n: 'int' = 20, frames: 'list[str] | None' = None, show_schema: 'bool' = True, truncate: 'int' = 80, enabled: 'bool' = True) -> 'None'
+spark_quick_start.orchestration.DebugTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DebugTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.DebugTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.DebugTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.DebugTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.DebugTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.DebugTransformer._stage_index annotation int
+spark_quick_start.orchestration.DebugTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.DebugTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.ErrorDetails bases (builtins.object)
+spark_quick_start.orchestration.ErrorDetails class(error_type: 'str', error_message: 'str', traceback: 'str | None' = None, context: 'dict[str, Any] | None' = None) -> None
+spark_quick_start.orchestration.ErrorDetails dataclass frozen=False eq=True order=False
+spark_quick_start.orchestration.ErrorDetails.__eq__ method(self, other)
+spark_quick_start.orchestration.ErrorDetails.__hash__ constant None
+spark_quick_start.orchestration.ErrorDetails.context annotation dict[str, Any] | None
+spark_quick_start.orchestration.ErrorDetails.context constant None
+spark_quick_start.orchestration.ErrorDetails.error_message annotation str
+spark_quick_start.orchestration.ErrorDetails.error_type annotation str
+spark_quick_start.orchestration.ErrorDetails.from_exception classmethod(exc: 'BaseException', traceback_text: 'str | None' = None) -> 'ErrorDetails'
+spark_quick_start.orchestration.ErrorDetails.to_dict method(self) -> 'dict[str, Any]'
+spark_quick_start.orchestration.ErrorDetails.traceback annotation str | None
+spark_quick_start.orchestration.ErrorDetails.traceback constant None
+spark_quick_start.orchestration.ExecutionMetrics bases (builtins.object)
+spark_quick_start.orchestration.ExecutionMetrics class(source_count: 'int' = 0, target_count: 'int' = 0, inserted_count: 'int' = 0, updated_count: 'int' = 0, duration_seconds: 'float' = 0.0, start_time: 'str' = '', end_time: 'str' = '', hwm_value_before: 'str | None' = None, hwm_value_after: 'str | None' = None) -> None
+spark_quick_start.orchestration.ExecutionMetrics dataclass frozen=False eq=True order=False
+spark_quick_start.orchestration.ExecutionMetrics.__eq__ method(self, other)
+spark_quick_start.orchestration.ExecutionMetrics.__hash__ constant None
+spark_quick_start.orchestration.ExecutionMetrics.duration_seconds annotation float
+spark_quick_start.orchestration.ExecutionMetrics.duration_seconds constant 0.0
+spark_quick_start.orchestration.ExecutionMetrics.end_time annotation str
+spark_quick_start.orchestration.ExecutionMetrics.end_time constant ''
+spark_quick_start.orchestration.ExecutionMetrics.hwm_value_after annotation str | None
+spark_quick_start.orchestration.ExecutionMetrics.hwm_value_after constant None
+spark_quick_start.orchestration.ExecutionMetrics.hwm_value_before annotation str | None
+spark_quick_start.orchestration.ExecutionMetrics.hwm_value_before constant None
+spark_quick_start.orchestration.ExecutionMetrics.inserted_count annotation int
+spark_quick_start.orchestration.ExecutionMetrics.inserted_count constant 0
+spark_quick_start.orchestration.ExecutionMetrics.source_count annotation int
+spark_quick_start.orchestration.ExecutionMetrics.source_count constant 0
+spark_quick_start.orchestration.ExecutionMetrics.start_time annotation str
+spark_quick_start.orchestration.ExecutionMetrics.start_time constant ''
+spark_quick_start.orchestration.ExecutionMetrics.target_count annotation int
+spark_quick_start.orchestration.ExecutionMetrics.target_count constant 0
+spark_quick_start.orchestration.ExecutionMetrics.updated_count annotation int
+spark_quick_start.orchestration.ExecutionMetrics.updated_count constant 0
+spark_quick_start.orchestration.ExecutionResult bases (builtins.object)
+spark_quick_start.orchestration.ExecutionResult class(status: 'str', has_error: 'bool', error_details: 'dict[str, Any] | None' = None, metrics: 'dict[str, Any] | None' = None, logs: 'str' = '', correlation_id: 'str' = '', early_exit: 'bool' = False, early_exit_reason: 'str' = '', stages: 'list[Any]' = <factory>) -> None
+spark_quick_start.orchestration.ExecutionResult dataclass frozen=False eq=True order=False
+spark_quick_start.orchestration.ExecutionResult.__eq__ method(self, other)
+spark_quick_start.orchestration.ExecutionResult.__hash__ constant None
+spark_quick_start.orchestration.ExecutionResult.correlation_id annotation str
+spark_quick_start.orchestration.ExecutionResult.correlation_id constant ''
+spark_quick_start.orchestration.ExecutionResult.early_exit annotation bool
+spark_quick_start.orchestration.ExecutionResult.early_exit constant False
+spark_quick_start.orchestration.ExecutionResult.early_exit_reason annotation str
+spark_quick_start.orchestration.ExecutionResult.early_exit_reason constant ''
+spark_quick_start.orchestration.ExecutionResult.error_details annotation dict[str, Any] | None
+spark_quick_start.orchestration.ExecutionResult.error_details constant None
+spark_quick_start.orchestration.ExecutionResult.from_json classmethod(json_str: 'str') -> 'ExecutionResult'
+spark_quick_start.orchestration.ExecutionResult.has_error annotation bool
+spark_quick_start.orchestration.ExecutionResult.logs annotation str
+spark_quick_start.orchestration.ExecutionResult.logs constant ''
+spark_quick_start.orchestration.ExecutionResult.metrics annotation dict[str, Any] | None
+spark_quick_start.orchestration.ExecutionResult.metrics constant None
+spark_quick_start.orchestration.ExecutionResult.stages annotation list[Any]
+spark_quick_start.orchestration.ExecutionResult.status annotation str
+spark_quick_start.orchestration.ExecutionResult.to_json method(self) -> 'str'
+spark_quick_start.orchestration.ExtensionsContext bases (builtins.object)
+spark_quick_start.orchestration.ExtensionsContext class(data: 'Mapping[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.ExtensionsContext.__contains__ method(self, key: 'object') -> 'bool'
+spark_quick_start.orchestration.ExtensionsContext.__eq__ method(self, other: 'object') -> 'bool'
+spark_quick_start.orchestration.ExtensionsContext.__getitem__ method(self, key: 'str') -> 'Any'
+spark_quick_start.orchestration.ExtensionsContext.__hash__ constant None
+spark_quick_start.orchestration.ExtensionsContext.__iter__ method(self) -> 'Iterator[str]'
+spark_quick_start.orchestration.ExtensionsContext.__len__ method(self) -> 'int'
+spark_quick_start.orchestration.ExtensionsContext.from_raw classmethod(raw: 'Any') -> 'ExtensionsContext'
+spark_quick_start.orchestration.ExtensionsContext.get method(self, key: 'str', default: 'Any' = None) -> 'Any'
+spark_quick_start.orchestration.ExtensionsContext.to_dict method(self) -> 'dict[str, Any]'
+spark_quick_start.orchestration.GlobalContext bases (builtins.object)
+spark_quick_start.orchestration.GlobalContext class(data: 'dict[str, Any]') -> 'None'
+spark_quick_start.orchestration.GlobalContext.entity_name instance attribute
+spark_quick_start.orchestration.GlobalContext.id instance attribute
+spark_quick_start.orchestration.GlobalContext.load_timestamp instance attribute
+spark_quick_start.orchestration.GlobalContext.load_timestamp_utc property(self) -> 'datetime'
+spark_quick_start.orchestration.GlobalContext.notebook_timeout_seconds instance attribute
+spark_quick_start.orchestration.GlobalContext.source_system instance attribute
+spark_quick_start.orchestration.GlobalContext.staging_table_path instance attribute
+spark_quick_start.orchestration.GlobalContext.staging_table_schema instance attribute
+spark_quick_start.orchestration.GlobalContext.target_table_path instance attribute
+spark_quick_start.orchestration.GlobalContext.validate method(self) -> 'None'
+spark_quick_start.orchestration.KeyMergeTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.KeyMergeTransformer class(*, check_keys: 'bool' = True) -> 'None'
+spark_quick_start.orchestration.KeyMergeTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.KeyMergeTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.KeyMergeTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.KeyMergeTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.KeyMergeTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.KeyMergeTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.KeyMergeTransformer._stage_index annotation int
+spark_quick_start.orchestration.KeyMergeTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.KeyMergeTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.KeyMergeTransformer.check_keys instance attribute
+spark_quick_start.orchestration.KeyMergeTransformer.inserted instance attribute
+spark_quick_start.orchestration.KeyMergeTransformer.required_scd_type annotation ClassVar[str]
+spark_quick_start.orchestration.KeyMergeTransformer.required_scd_type declaration 'landing'
+spark_quick_start.orchestration.KeyMergeTransformer.updated instance attribute
+spark_quick_start.orchestration.LoadContext bases (builtins.object)
+spark_quick_start.orchestration.LoadContext class(global_ctx: 'GlobalContext', staging_ctx: 'StagingContext', scd_ctx: 'SCDContext', runtime_ctx: 'RuntimeContext', logging_ctx: 'LoggingContext', hwm_ctx: 'HWMContext | None' = None, dqd_ctx: 'DQDContext | None' = None, extensions_ctx: 'ExtensionsContext' = <factory>, platform_ctx: 'PlatformContext' = <factory>, source_ctx: 'SourceContext | None' = None) -> None
+spark_quick_start.orchestration.LoadContext dataclass frozen=True eq=True order=False
+spark_quick_start.orchestration.LoadContext.__eq__ method(self, other)
+spark_quick_start.orchestration.LoadContext.__hash__ method(self)
+spark_quick_start.orchestration.LoadContext.dqd_ctx annotation DQDContext | None
+spark_quick_start.orchestration.LoadContext.dqd_ctx constant None
+spark_quick_start.orchestration.LoadContext.extensions_ctx annotation ExtensionsContext
+spark_quick_start.orchestration.LoadContext.global_ctx annotation GlobalContext
+spark_quick_start.orchestration.LoadContext.hwm_ctx annotation HWMContext | None
+spark_quick_start.orchestration.LoadContext.hwm_ctx constant None
+spark_quick_start.orchestration.LoadContext.logging_ctx annotation LoggingContext
+spark_quick_start.orchestration.LoadContext.platform_ctx annotation PlatformContext
+spark_quick_start.orchestration.LoadContext.runtime_ctx annotation RuntimeContext
+spark_quick_start.orchestration.LoadContext.scd_ctx annotation SCDContext
+spark_quick_start.orchestration.LoadContext.source_ctx annotation SourceContext | None
+spark_quick_start.orchestration.LoadContext.source_ctx constant None
+spark_quick_start.orchestration.LoadContext.staging_ctx annotation StagingContext
+spark_quick_start.orchestration.LoadContextManager bases (builtins.object)
+spark_quick_start.orchestration.LoadContextManager class(load_context_json: 'str') -> 'None'
+spark_quick_start.orchestration.LoadContextManager.build_staging_phase_context method(self, stage_index: 'int', staging_nb_name: 'str') -> 'dict[str, Any]'
+spark_quick_start.orchestration.LoadContextManager.dqd_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.extensions_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.global_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.hwm_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.logging_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.parse method(self, data_storage_path: 'str', data_eng_path: 'str') -> 'LoadContextManager'
+spark_quick_start.orchestration.LoadContextManager.platform_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.raw_json instance attribute
+spark_quick_start.orchestration.LoadContextManager.runtime_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.scd_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.source_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.staging_ctx instance attribute
+spark_quick_start.orchestration.LoadContextManager.validate_all method(self) -> 'None'
+spark_quick_start.orchestration.LoadOrchestrator bases (builtins.object)
+spark_quick_start.orchestration.LoadOrchestrator class(load_context_json: 'str', spark: 'SparkSession', *, adapter: 'PlatformAdapter | None' = None, platform: 'str' = 'fabric', data_storage_path: 'str' = '', data_eng_path: 'str' = '', logger: 'OrchestratorLogger | None' = None) -> 'None'
+spark_quick_start.orchestration.LoadOrchestrator.add method(self, transformer: 'Any') -> 'LoadOrchestrator'
+spark_quick_start.orchestration.LoadOrchestrator.add_if method(self, predicate: 'Any', transformer: 'Any', label: 'str | None' = None) -> 'LoadOrchestrator'
+spark_quick_start.orchestration.LoadOrchestrator.run method(self) -> 'ExecutionResult'
+spark_quick_start.orchestration.LoadOrchestrator.set_source method(self, predicate: 'Any', source_if_true: 'Any', source_if_false: 'Any', label: 'str | None' = None) -> 'LoadOrchestrator'
+spark_quick_start.orchestration.LoggingContext bases (builtins.object)
+spark_quick_start.orchestration.LoggingContext class(data: 'dict[str, Any]') -> 'None'
+spark_quick_start.orchestration.LoggingContext.log_file_dir instance attribute
+spark_quick_start.orchestration.LoggingContext.log_file_name instance attribute
+spark_quick_start.orchestration.LoggingContext.logging_level instance attribute
+spark_quick_start.orchestration.LoggingContext.suppress_stdout_tail instance attribute
+spark_quick_start.orchestration.LoggingContext.validate method(self) -> 'None'
+spark_quick_start.orchestration.LoggingContext.verbose instance attribute
+spark_quick_start.orchestration.NativeSCDMergeTransformer bases (spark_quick_start.orchestration.ProcessTransformer, spark_quick_start.orchestration.transformers.HWMProvider)
+spark_quick_start.orchestration.NativeSCDMergeTransformer class() -> 'None'
+spark_quick_start.orchestration.NativeSCDMergeTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.NativeSCDMergeTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.NativeSCDMergeTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer._stage_index annotation int
+spark_quick_start.orchestration.NativeSCDMergeTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.NativeSCDMergeTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.NativeSCDMergeTransformer.hwm_after annotation str | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer.hwm_before annotation str | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer.hwm_column annotation str | None
+spark_quick_start.orchestration.NativeSCDMergeTransformer.inserted instance attribute
+spark_quick_start.orchestration.NativeSCDMergeTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.NativeSCDMergeTransformer.updated instance attribute
+spark_quick_start.orchestration.PipelineState bases (builtins.object)
+spark_quick_start.orchestration.PipelineState class(df: 'DataFrame', frames: 'dict[str, DataFrame]' = <factory>, halted: 'bool' = False, halt_reason: 'str' = '', target_exists: 'bool | None' = None, debug_columns: 'frozenset[str]' = frozenset(), hash_separator: 'str | None' = None, cached: 'tuple[DataFrame, ...]' = ()) -> None
+spark_quick_start.orchestration.PipelineState dataclass frozen=False eq=True order=False
+spark_quick_start.orchestration.PipelineState.__eq__ method(self, other)
+spark_quick_start.orchestration.PipelineState.__hash__ constant None
+spark_quick_start.orchestration.PipelineState.cached annotation tuple[DataFrame, ...]
+spark_quick_start.orchestration.PipelineState.cached constant ()
+spark_quick_start.orchestration.PipelineState.debug_columns annotation frozenset[str]
+spark_quick_start.orchestration.PipelineState.debug_columns constant frozenset()
+spark_quick_start.orchestration.PipelineState.df annotation DataFrame
+spark_quick_start.orchestration.PipelineState.frames annotation dict[str, DataFrame]
+spark_quick_start.orchestration.PipelineState.halt_reason annotation str
+spark_quick_start.orchestration.PipelineState.halt_reason constant ''
+spark_quick_start.orchestration.PipelineState.halted annotation bool
+spark_quick_start.orchestration.PipelineState.halted constant False
+spark_quick_start.orchestration.PipelineState.hash_separator annotation str | None
+spark_quick_start.orchestration.PipelineState.hash_separator constant None
+spark_quick_start.orchestration.PipelineState.target_exists annotation bool | None
+spark_quick_start.orchestration.PipelineState.target_exists constant None
+spark_quick_start.orchestration.PipelineState.with_cached method(self, df: 'DataFrame') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_debug_columns method(self, *names: 'str') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_df method(self, df: 'DataFrame') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_frame method(self, name: 'str', df: 'DataFrame') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_halted method(self, reason: 'str') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_hash_separator method(self, separator: 'str') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_target method(self, frame: 'DataFrame | None') -> 'PipelineState'
+spark_quick_start.orchestration.PipelineState.with_updates method(self, df: 'DataFrame | None' = None, **frames: 'DataFrame') -> 'PipelineState'
+spark_quick_start.orchestration.PlatformContext bases (builtins.object)
+spark_quick_start.orchestration.PlatformContext class(data_storage_lakehouse_path: 'str' = '', data_engineering_lakehouse_path: 'str' = '') -> None
+spark_quick_start.orchestration.PlatformContext dataclass frozen=True eq=True order=False
+spark_quick_start.orchestration.PlatformContext.__eq__ method(self, other)
+spark_quick_start.orchestration.PlatformContext.__hash__ method(self)
+spark_quick_start.orchestration.PlatformContext.data_engineering_lakehouse_path annotation str
+spark_quick_start.orchestration.PlatformContext.data_engineering_lakehouse_path constant ''
+spark_quick_start.orchestration.PlatformContext.data_storage_lakehouse_path annotation str
+spark_quick_start.orchestration.PlatformContext.data_storage_lakehouse_path constant ''
+spark_quick_start.orchestration.PlatformContext.to_dict method(self) -> 'dict[str, str]'
+spark_quick_start.orchestration.ProcessTransformer abstract (_run)
+spark_quick_start.orchestration.ProcessTransformer bases (spark_quick_start.orchestration.transformers.base._TransformerBase)
+spark_quick_start.orchestration.ProcessTransformer class()
+spark_quick_start.orchestration.ProcessTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.ProcessTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.ProcessTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.ProcessTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.ProcessTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.ProcessTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.ProcessTransformer._stage_index annotation int
+spark_quick_start.orchestration.ProcessTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.ProcessTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.RuntimeContext bases (builtins.object)
+spark_quick_start.orchestration.RuntimeContext class(data: 'dict[str, Any]') -> 'None'
+spark_quick_start.orchestration.RuntimeContext.application_name instance attribute
+spark_quick_start.orchestration.RuntimeContext.capture_partitions instance attribute
+spark_quick_start.orchestration.RuntimeContext.capture_plans instance attribute
+spark_quick_start.orchestration.RuntimeContext.capture_row_counts instance attribute
+spark_quick_start.orchestration.RuntimeContext.correlation_id instance attribute
+spark_quick_start.orchestration.RuntimeContext.materialize_strategy instance attribute
+spark_quick_start.orchestration.RuntimeContext.max_parallel_staging instance attribute
+spark_quick_start.orchestration.RuntimeContext.parallel_execution_enabled instance attribute
+spark_quick_start.orchestration.RuntimeContext.pipeline_name instance attribute
+spark_quick_start.orchestration.RuntimeContext.pipeline_run_id instance attribute
+spark_quick_start.orchestration.RuntimeContext.serverless instance attribute
+spark_quick_start.orchestration.RuntimeContext.validate method(self) -> 'None'
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer class(*, sample_n: 'int' = 5) -> 'None'
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer._stage_index annotation int
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.SCDCandidateVersionGuardTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.SCDChangeDetectorTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.SCDChangeDetectorTransformer class(*, exclude_from_hash: 'Sequence[str] | None' = None, hash_null_token: 'str' = '<NULL>', hash_separator: 'str | None' = None, debug_hash_string_column: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDChangeDetectorTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDChangeDetectorTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.SCDChangeDetectorTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.SCDChangeDetectorTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.SCDChangeDetectorTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDChangeDetectorTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.SCDChangeDetectorTransformer._stage_index annotation int
+spark_quick_start.orchestration.SCDChangeDetectorTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDChangeDetectorTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.SCDChangeDetectorTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.SCDContext bases (builtins.object)
+spark_quick_start.orchestration.SCDContext class(data: 'dict[str, Any]', policy: 'ColumnNamingPolicy | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDContext.business_key_column instance attribute
+spark_quick_start.orchestration.SCDContext.correlation_id_column instance attribute
+spark_quick_start.orchestration.SCDContext.current_flag_column instance attribute
+spark_quick_start.orchestration.SCDContext.current_flag_value instance attribute
+spark_quick_start.orchestration.SCDContext.default_max_timestamp instance attribute
+spark_quick_start.orchestration.SCDContext.default_max_timestamp_utc property(self) -> 'datetime'
+spark_quick_start.orchestration.SCDContext.deleted_flag_column instance attribute
+spark_quick_start.orchestration.SCDContext.deleted_flag_value instance attribute
+spark_quick_start.orchestration.SCDContext.effective_from_column instance attribute
+spark_quick_start.orchestration.SCDContext.effective_to_column instance attribute
+spark_quick_start.orchestration.SCDContext.exclude_from_hash instance attribute
+spark_quick_start.orchestration.SCDContext.hash_algorithm instance attribute
+spark_quick_start.orchestration.SCDContext.hash_column instance attribute
+spark_quick_start.orchestration.SCDContext.hash_separator instance attribute
+spark_quick_start.orchestration.SCDContext.inactive_flag_value instance attribute
+spark_quick_start.orchestration.SCDContext.is_data_vault property(self) -> 'bool'
+spark_quick_start.orchestration.SCDContext.link_hub_key_columns instance attribute
+spark_quick_start.orchestration.SCDContext.load_end_ts_column instance attribute
+spark_quick_start.orchestration.SCDContext.load_ts_column instance attribute
+spark_quick_start.orchestration.SCDContext.load_type instance attribute
+spark_quick_start.orchestration.SCDContext.not_deleted_flag_value instance attribute
+spark_quick_start.orchestration.SCDContext.pipeline_run_id_column instance attribute
+spark_quick_start.orchestration.SCDContext.require_data_vault_style method(self, step: 'str', style: 'str') -> 'None'
+spark_quick_start.orchestration.SCDContext.require_scd_style method(self, step: 'str') -> 'None'
+spark_quick_start.orchestration.SCDContext.require_scd_type method(self, step: 'str', scd_type: 'str') -> 'None'
+spark_quick_start.orchestration.SCDContext.row_key_column instance attribute
+spark_quick_start.orchestration.SCDContext.scd_row_hashing instance attribute
+spark_quick_start.orchestration.SCDContext.scd_type instance attribute
+spark_quick_start.orchestration.SCDContext.source_deleted_flag_column instance attribute
+spark_quick_start.orchestration.SCDContext.source_deleted_flag_value instance attribute
+spark_quick_start.orchestration.SCDContext.source_system_column instance attribute
+spark_quick_start.orchestration.SCDContext.source_system_from_source instance attribute
+spark_quick_start.orchestration.SCDContext.validate method(self) -> 'None'
+spark_quick_start.orchestration.SCDContext.version_column instance attribute
+spark_quick_start.orchestration.SCDContext.was_given method(self, key: 'str') -> 'bool'
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer bases (spark_quick_start.orchestration.SCDChangeDetectorTransformer)
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer class(*, exclude_from_hash: 'Sequence[str] | None' = None, hash_null_token: 'str' = '<NULL>', hash_separator: 'str | None' = None, debug_hash_string_column: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer._stage_index annotation int
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.SCDGracefulChangeDetectorTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.SCDTargetTableTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.SCDTargetTableTransformer class()
+spark_quick_start.orchestration.SCDTargetTableTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDTargetTableTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.SCDTargetTableTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.SCDTargetTableTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.SCDTargetTableTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SCDTargetTableTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.SCDTargetTableTransformer._stage_index annotation int
+spark_quick_start.orchestration.SCDTargetTableTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.SCDTargetTableTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.SCDTargetTableTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.SourceContext bases (spark_quick_start.orchestration.ExtensionsContext)
+spark_quick_start.orchestration.SourceContext class(data: 'Mapping[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.SourceContext.__contains__ method(self, key: 'object') -> 'bool'
+spark_quick_start.orchestration.SourceContext.__eq__ method(self, other: 'object') -> 'bool'
+spark_quick_start.orchestration.SourceContext.__getitem__ method(self, key: 'str') -> 'Any'
+spark_quick_start.orchestration.SourceContext.__hash__ constant None
+spark_quick_start.orchestration.SourceContext.__iter__ method(self) -> 'Iterator[str]'
+spark_quick_start.orchestration.SourceContext.__len__ method(self) -> 'int'
+spark_quick_start.orchestration.SourceContext.from_raw classmethod(raw: 'Any') -> 'SourceContext'
+spark_quick_start.orchestration.SourceContext.get method(self, key: 'str', default: 'Any' = None) -> 'Any'
+spark_quick_start.orchestration.SourceContext.kind property(self) -> 'str'
+spark_quick_start.orchestration.SourceContext.to_dict method(self) -> 'dict[str, Any]'
+spark_quick_start.orchestration.SourceTransformer abstract (_produce)
+spark_quick_start.orchestration.SourceTransformer bases (spark_quick_start.orchestration.transformers.base._TransformerBase)
+spark_quick_start.orchestration.SourceTransformer class()
+spark_quick_start.orchestration.SourceTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.SourceTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.SourceTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.SourceTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SourceTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.SourceTransformer._stage_index annotation int
+spark_quick_start.orchestration.SourceTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.SourceTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.SourceTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.SourceTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.SourceTransformer.source_kind declaration None
+spark_quick_start.orchestration.StagedKeyGuardTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.StagedKeyGuardTransformer class(*, sample_n: 'int' = 5) -> 'None'
+spark_quick_start.orchestration.StagedKeyGuardTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.StagedKeyGuardTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.StagedKeyGuardTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.StagedKeyGuardTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.StagedKeyGuardTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.StagedKeyGuardTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.StagedKeyGuardTransformer._stage_index annotation int
+spark_quick_start.orchestration.StagedKeyGuardTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.StagedKeyGuardTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.StagingContext bases (builtins.object)
+spark_quick_start.orchestration.StagingContext class(data: 'dict[str, Any]') -> 'None'
+spark_quick_start.orchestration.StagingContext.stages instance attribute
+spark_quick_start.orchestration.StagingContext.validate method(self, *, has_dqd: 'bool' = False, has_source: 'bool' = False) -> 'None'
+spark_quick_start.orchestration.StagingTransformer bases (spark_quick_start.orchestration.SourceTransformer)
+spark_quick_start.orchestration.StagingTransformer class() -> 'None'
+spark_quick_start.orchestration.StagingTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.StagingTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.StagingTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.StagingTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.StagingTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.StagingTransformer._stage_index annotation int
+spark_quick_start.orchestration.StagingTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.StagingTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.StagingTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.StagingTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.StagingTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.StagingTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.StagingTransformer.source_count instance attribute
+spark_quick_start.orchestration.StagingTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.StagingTransformer.source_kind declaration None
+spark_quick_start.orchestration.StagingTransformer.target_count instance attribute
+spark_quick_start.orchestration.default_pipeline function(load_context_json: 'str', spark: 'SparkSession', *, adapter: 'PlatformAdapter | None' = None, platform: 'str' = 'fabric', data_storage_path: 'str' = '', data_eng_path: 'str' = '', logger: 'OrchestratorLogger | None' = None) -> 'LoadOrchestrator'
+spark_quick_start.orchestration.dv_hub_pipeline function(load_context_json: 'str', spark: 'SparkSession', *, adapter: 'PlatformAdapter | None' = None, platform: 'str' = 'fabric', data_storage_path: 'str' = '', data_eng_path: 'str' = '', logger: 'OrchestratorLogger | None' = None) -> 'LoadOrchestrator'
+spark_quick_start.orchestration.dv_link_pipeline function(load_context_json: 'str', spark: 'SparkSession', *, adapter: 'PlatformAdapter | None' = None, platform: 'str' = 'fabric', data_storage_path: 'str' = '', data_eng_path: 'str' = '', logger: 'OrchestratorLogger | None' = None) -> 'LoadOrchestrator'
+spark_quick_start.orchestration.dv_satellite_pipeline function(load_context_json: 'str', spark: 'SparkSession', *, adapter: 'PlatformAdapter | None' = None, platform: 'str' = 'fabric', data_storage_path: 'str' = '', data_eng_path: 'str' = '', logger: 'OrchestratorLogger | None' = None) -> 'LoadOrchestrator'
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer abstract (_run)
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer class()
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.AlwaysRunTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer class(*, sample_n: 'int' = 5) -> 'None'
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.CandidateGuardTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer bases (spark_quick_start.orchestration.SourceTransformer)
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer class(predicate: 'Predicate', source_if_true: 'SourceTransformer', source_if_false: 'SourceTransformer', label: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.selected_source instance attribute
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.source_kind declaration None
+spark_quick_start.orchestration.transformers.ConditionalSourceTransformer.sources property(self) -> 'tuple[SourceTransformer, SourceTransformer]'
+spark_quick_start.orchestration.transformers.ConditionalTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.ConditionalTransformer class(predicate: 'Predicate', transformer: 'ProcessTransformer', label: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.ConditionalTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.ConditionalTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.ConditionalTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.ConditionalTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.ConditionalTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.ConditionalTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.ConditionalTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.ConditionalTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.ConditionalTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DQDTransformer bases (spark_quick_start.orchestration.SourceTransformer)
+spark_quick_start.orchestration.transformers.DQDTransformer class(dqd_definition: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DQDTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DQDTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DQDTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DQDTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DQDTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DQDTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DQDTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DQDTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DQDTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.transformers.DQDTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.transformers.DQDTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.transformers.DQDTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DQDTransformer.source_count instance attribute
+spark_quick_start.orchestration.transformers.DQDTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.transformers.DQDTransformer.source_kind declaration None
+spark_quick_start.orchestration.transformers.DQDTransformer.target_count instance attribute
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer class()
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVHubTargetTransformer.data_vault_style declaration 'dv_hub'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer class() -> 'None'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.data_vault_style declaration 'dv_hub'
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.inserted instance attribute
+spark_quick_start.orchestration.transformers.DVHubWriterTransformer.updated instance attribute
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer class()
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVLinkTargetTransformer.data_vault_style declaration 'dv_link'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer class() -> 'None'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.data_vault_style declaration 'dv_link'
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.inserted instance attribute
+spark_quick_start.orchestration.transformers.DVLinkWriterTransformer.updated instance attribute
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer class()
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteChangeDetectorTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer class()
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteIncrementalTargetTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer class()
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteTargetTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer class() -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.data_vault_style declaration 'dv_satellite'
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.inserted instance attribute
+spark_quick_start.orchestration.transformers.DVSatelliteWriterTransformer.updated instance attribute
+spark_quick_start.orchestration.transformers.DebugTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.DebugTransformer class(label: 'str' = '', *, n: 'int' = 20, frames: 'list[str] | None' = None, show_schema: 'bool' = True, truncate: 'int' = 80, enabled: 'bool' = True) -> 'None'
+spark_quick_start.orchestration.transformers.DebugTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DebugTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.DebugTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.DebugTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.DebugTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.DebugTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.DebugTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.DebugTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.DebugTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.HWMProvider bases (typing.Protocol)
+spark_quick_start.orchestration.transformers.HWMProvider class(*args, **kwargs)
+spark_quick_start.orchestration.transformers.HWMProvider protocol runtime_checkable=True
+spark_quick_start.orchestration.transformers.HWMProvider.hwm_after annotation str | None
+spark_quick_start.orchestration.transformers.HWMProvider.hwm_before annotation str | None
+spark_quick_start.orchestration.transformers.HWMProvider.hwm_column annotation str | None
+spark_quick_start.orchestration.transformers.KeyMergeTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.KeyMergeTransformer class(*, check_keys: 'bool' = True) -> 'None'
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.KeyMergeTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.KeyMergeTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.KeyMergeTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.KeyMergeTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.KeyMergeTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.KeyMergeTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.check_keys instance attribute
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.inserted instance attribute
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.required_scd_type annotation ClassVar[str]
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.required_scd_type declaration 'landing'
+spark_quick_start.orchestration.transformers.KeyMergeTransformer.updated instance attribute
+spark_quick_start.orchestration.transformers.LoadContext bases (builtins.object)
+spark_quick_start.orchestration.transformers.LoadContext class(global_ctx: 'GlobalContext', staging_ctx: 'StagingContext', scd_ctx: 'SCDContext', runtime_ctx: 'RuntimeContext', logging_ctx: 'LoggingContext', hwm_ctx: 'HWMContext | None' = None, dqd_ctx: 'DQDContext | None' = None, extensions_ctx: 'ExtensionsContext' = <factory>, platform_ctx: 'PlatformContext' = <factory>, source_ctx: 'SourceContext | None' = None) -> None
+spark_quick_start.orchestration.transformers.LoadContext dataclass frozen=True eq=True order=False
+spark_quick_start.orchestration.transformers.LoadContext.__eq__ method(self, other)
+spark_quick_start.orchestration.transformers.LoadContext.__hash__ method(self)
+spark_quick_start.orchestration.transformers.LoadContext.dqd_ctx annotation DQDContext | None
+spark_quick_start.orchestration.transformers.LoadContext.dqd_ctx constant None
+spark_quick_start.orchestration.transformers.LoadContext.extensions_ctx annotation ExtensionsContext
+spark_quick_start.orchestration.transformers.LoadContext.global_ctx annotation GlobalContext
+spark_quick_start.orchestration.transformers.LoadContext.hwm_ctx annotation HWMContext | None
+spark_quick_start.orchestration.transformers.LoadContext.hwm_ctx constant None
+spark_quick_start.orchestration.transformers.LoadContext.logging_ctx annotation LoggingContext
+spark_quick_start.orchestration.transformers.LoadContext.platform_ctx annotation PlatformContext
+spark_quick_start.orchestration.transformers.LoadContext.runtime_ctx annotation RuntimeContext
+spark_quick_start.orchestration.transformers.LoadContext.scd_ctx annotation SCDContext
+spark_quick_start.orchestration.transformers.LoadContext.source_ctx annotation SourceContext | None
+spark_quick_start.orchestration.transformers.LoadContext.source_ctx constant None
+spark_quick_start.orchestration.transformers.LoadContext.staging_ctx annotation StagingContext
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer class(frame_key: 'str' = 'target') -> 'None'
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.MaterializeFrameTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.MaterializeTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.MaterializeTransformer class()
+spark_quick_start.orchestration.transformers.MaterializeTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.MaterializeTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.MaterializeTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.MaterializeTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.MaterializeTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.MaterializeTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.MaterializeTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.MaterializeTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.MaterializeTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.MetricsChartTransformer bases (spark_quick_start.orchestration.transformers.AlwaysRunTransformer)
+spark_quick_start.orchestration.transformers.MetricsChartTransformer class()
+spark_quick_start.orchestration.transformers.MetricsChartTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.MetricsChartTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.MetricsChartTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.MetricsChartTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.MetricsChartTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.MetricsChartTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.MetricsChartTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.MetricsChartTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.MetricsChartTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer bases (spark_quick_start.orchestration.ProcessTransformer, spark_quick_start.orchestration.transformers.HWMProvider)
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer class() -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.hwm_after annotation str | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.hwm_before annotation str | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.hwm_column annotation str | None
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.inserted instance attribute
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.NativeSCDAppendOnlyTransformer.updated instance attribute
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer bases (spark_quick_start.orchestration.ProcessTransformer, spark_quick_start.orchestration.transformers.HWMProvider)
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer class() -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.hwm_after annotation str | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.hwm_before annotation str | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.hwm_column annotation str | None
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.inserted instance attribute
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.NativeSCDMergeTransformer.updated instance attribute
+spark_quick_start.orchestration.transformers.PlanReportTransformer bases (spark_quick_start.orchestration.transformers.AlwaysRunTransformer)
+spark_quick_start.orchestration.transformers.PlanReportTransformer class()
+spark_quick_start.orchestration.transformers.PlanReportTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.PlanReportTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.PlanReportTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.PlanReportTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.PlanReportTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.PlanReportTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.PlanReportTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.PlanReportTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.PlanReportTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.ProcessTransformer abstract (_run)
+spark_quick_start.orchestration.transformers.ProcessTransformer bases (spark_quick_start.orchestration.transformers.base._TransformerBase)
+spark_quick_start.orchestration.transformers.ProcessTransformer class()
+spark_quick_start.orchestration.transformers.ProcessTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.ProcessTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.ProcessTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.ProcessTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.ProcessTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.ProcessTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.ProcessTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.ProcessTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.ProcessTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer class(*, sample_n: 'int' = 5) -> 'None'
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.SCDCandidateVersionGuardTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer class(*, exclude_from_hash: 'Sequence[str] | None' = None, hash_null_token: 'str' = '<NULL>', hash_separator: 'str | None' = None, debug_hash_string_column: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.SCDChangeDetectorTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer bases (spark_quick_start.orchestration.SCDChangeDetectorTransformer)
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer class(*, exclude_from_hash: 'Sequence[str] | None' = None, hash_null_token: 'str' = '<NULL>', hash_separator: 'str | None' = None, debug_hash_string_column: 'str | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.SCDGracefulChangeDetectorTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer class(*, broadcast: 'bool' = True) -> 'None'
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.SCDIncrementalTargetTableTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.SCDMetricsProvider bases (typing.Protocol)
+spark_quick_start.orchestration.transformers.SCDMetricsProvider class(*args, **kwargs)
+spark_quick_start.orchestration.transformers.SCDMetricsProvider protocol runtime_checkable=True
+spark_quick_start.orchestration.transformers.SCDMetricsProvider.inserted annotation int | None
+spark_quick_start.orchestration.transformers.SCDMetricsProvider.updated annotation int | None
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer class()
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.SCDTargetTableTransformer.scd_style_only declaration True
+spark_quick_start.orchestration.transformers.SourceMetricsProvider bases (typing.Protocol)
+spark_quick_start.orchestration.transformers.SourceMetricsProvider class(*args, **kwargs)
+spark_quick_start.orchestration.transformers.SourceMetricsProvider protocol runtime_checkable=True
+spark_quick_start.orchestration.transformers.SourceMetricsProvider.source_count annotation int | None
+spark_quick_start.orchestration.transformers.SourceMetricsProvider.target_count annotation int | None
+spark_quick_start.orchestration.transformers.SourceTransformer abstract (_produce)
+spark_quick_start.orchestration.transformers.SourceTransformer bases (spark_quick_start.orchestration.transformers.base._TransformerBase)
+spark_quick_start.orchestration.transformers.SourceTransformer class()
+spark_quick_start.orchestration.transformers.SourceTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.SourceTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.SourceTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.SourceTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SourceTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.SourceTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.SourceTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SourceTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.SourceTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.SourceTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.transformers.SourceTransformer.source_kind declaration None
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer bases (spark_quick_start.orchestration.ProcessTransformer)
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer class(*, sample_n: 'int' = 5) -> 'None'
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer.__call__ method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer._run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer.after_run method(self, state: 'PipelineState', ctx: 'LoadContext', *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.StagedKeyGuardTransformer.before_run method(self, state: 'PipelineState', ctx: 'LoadContext') -> 'None'
+spark_quick_start.orchestration.transformers.StagingTransformer bases (spark_quick_start.orchestration.SourceTransformer)
+spark_quick_start.orchestration.transformers.StagingTransformer class() -> 'None'
+spark_quick_start.orchestration.transformers.StagingTransformer._adapter annotation PlatformAdapter | None
+spark_quick_start.orchestration.transformers.StagingTransformer._logger annotation OrchestratorLogger | None
+spark_quick_start.orchestration.transformers.StagingTransformer._metrics_collector annotation StageMetricsCollector | None
+spark_quick_start.orchestration.transformers.StagingTransformer._produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.StagingTransformer._spark annotation SparkSession | None
+spark_quick_start.orchestration.transformers.StagingTransformer._stage_index annotation int
+spark_quick_start.orchestration.transformers.StagingTransformer.after_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None, *, extra_metrics: 'dict[str, Any] | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.StagingTransformer.before_run method(self, ctx: 'LoadContext', df: 'DataFrame | None' = None) -> 'None'
+spark_quick_start.orchestration.transformers.StagingTransformer.hwm_after instance attribute
+spark_quick_start.orchestration.transformers.StagingTransformer.hwm_before instance attribute
+spark_quick_start.orchestration.transformers.StagingTransformer.hwm_column instance attribute
+spark_quick_start.orchestration.transformers.StagingTransformer.produce method(self, ctx: 'LoadContext') -> 'PipelineState'
+spark_quick_start.orchestration.transformers.StagingTransformer.source_count instance attribute
+spark_quick_start.orchestration.transformers.StagingTransformer.source_kind annotation ClassVar[str | None]
+spark_quick_start.orchestration.transformers.StagingTransformer.source_kind declaration None
+spark_quick_start.orchestration.transformers.StagingTransformer.target_count instance attribute
+spark_quick_start.spark_load_orchestration.create_staging_main_function function(create_staging_dataframe_fn: 'Callable', adapter: 'PlatformAdapter | None' = None, log_init_fn: 'Callable | None' = None, get_logs_fn: 'Callable | None' = None, spark: 'Any | None' = None) -> 'Callable[[str], ExecutionResult]'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter bases (spark_quick_start.spark_logging.LogPersistenceAdapter)
+spark_quick_start.spark_logging.CapturingPersistenceAdapter class() -> 'None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.copies instance attribute
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.dirs instance attribute
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.exit_values instance attribute
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.finalize_to_table method(self, row: 'LogRow') -> 'None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.finalized_rows instance attribute
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.get_spark_session method(self) -> 'Any | None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.CapturingPersistenceAdapter.written instance attribute
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter bases (spark_quick_start.spark_logging.LogPersistenceAdapter)
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter class()
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter.get_spark_session method(self) -> 'Any | None'
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.DatabricksPersistenceAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.FabricPersistenceAdapter bases (spark_quick_start.spark_logging.LogPersistenceAdapter)
+spark_quick_start.spark_logging.FabricPersistenceAdapter class()
+spark_quick_start.spark_logging.FabricPersistenceAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.FabricPersistenceAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.FabricPersistenceAdapter.get_spark_session method(self) -> 'Any | None'
+spark_quick_start.spark_logging.FabricPersistenceAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.FabricPersistenceAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.FabricPersistenceAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter bases (spark_quick_start.spark_logging.LogPersistenceAdapter)
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter class()
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter.get_spark_session method(self) -> 'Any | None'
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.LocalFilePersistenceAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.LogArtifacts bases (builtins.object)
+spark_quick_start.spark_logging.LogArtifacts class(base_name: 'str', run_id: 'str', python_json_path: 'str | None' = None, spark_driver_log_path: 'str | None' = None) -> None
+spark_quick_start.spark_logging.LogArtifacts dataclass frozen=False eq=True order=False
+spark_quick_start.spark_logging.LogArtifacts.__eq__ method(self, other)
+spark_quick_start.spark_logging.LogArtifacts.__hash__ constant None
+spark_quick_start.spark_logging.LogArtifacts.base_name annotation str
+spark_quick_start.spark_logging.LogArtifacts.python_json_path annotation str | None
+spark_quick_start.spark_logging.LogArtifacts.python_json_path constant None
+spark_quick_start.spark_logging.LogArtifacts.run_id annotation str
+spark_quick_start.spark_logging.LogArtifacts.spark_driver_log_path annotation str | None
+spark_quick_start.spark_logging.LogArtifacts.spark_driver_log_path constant None
+spark_quick_start.spark_logging.LogPersistenceAdapter abstract (copy, mkdir, write)
+spark_quick_start.spark_logging.LogPersistenceAdapter bases (abc.ABC)
+spark_quick_start.spark_logging.LogPersistenceAdapter class()
+spark_quick_start.spark_logging.LogPersistenceAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.LogPersistenceAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.LogPersistenceAdapter.get_spark_session method(self) -> 'Any | None'
+spark_quick_start.spark_logging.LogPersistenceAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.LogPersistenceAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.LogPersistenceAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.LogRow bases (builtins.object)
+spark_quick_start.spark_logging.LogRow class(run_id: 'str', success: 'bool', log_timestamp: 'datetime', correlation_id: 'str | None' = None, pipeline_name: 'str | None' = None, notebook_name: 'str | None' = None, python_logs: 'str' = '', stdout_tail: 'str' = '', stderr_tail: 'str' = '', spark_driver_tail: 'str' = '', context: 'str' = '{}', error: 'str | None' = None) -> None
+spark_quick_start.spark_logging.LogRow dataclass frozen=False eq=True order=False
+spark_quick_start.spark_logging.LogRow.__eq__ method(self, other)
+spark_quick_start.spark_logging.LogRow.__hash__ constant None
+spark_quick_start.spark_logging.LogRow.context annotation str
+spark_quick_start.spark_logging.LogRow.context constant '{}'
+spark_quick_start.spark_logging.LogRow.correlation_id annotation str | None
+spark_quick_start.spark_logging.LogRow.correlation_id constant None
+spark_quick_start.spark_logging.LogRow.error annotation str | None
+spark_quick_start.spark_logging.LogRow.error constant None
+spark_quick_start.spark_logging.LogRow.log_timestamp annotation datetime
+spark_quick_start.spark_logging.LogRow.notebook_name annotation str | None
+spark_quick_start.spark_logging.LogRow.notebook_name constant None
+spark_quick_start.spark_logging.LogRow.pipeline_name annotation str | None
+spark_quick_start.spark_logging.LogRow.pipeline_name constant None
+spark_quick_start.spark_logging.LogRow.python_logs annotation str
+spark_quick_start.spark_logging.LogRow.python_logs constant ''
+spark_quick_start.spark_logging.LogRow.run_id annotation str
+spark_quick_start.spark_logging.LogRow.spark_driver_tail annotation str
+spark_quick_start.spark_logging.LogRow.spark_driver_tail constant ''
+spark_quick_start.spark_logging.LogRow.stderr_tail annotation str
+spark_quick_start.spark_logging.LogRow.stderr_tail constant ''
+spark_quick_start.spark_logging.LogRow.stdout_tail annotation str
+spark_quick_start.spark_logging.LogRow.stdout_tail constant ''
+spark_quick_start.spark_logging.LogRow.success annotation bool
+spark_quick_start.spark_logging.LogSession bases (builtins.object)
+spark_quick_start.spark_logging.LogSession class(*, lakehouse_dir: 'str' = 'Files/Logs', name_prefix: 'str' = 'notebook', level: 'Any' = 'INFO', capture_spark: 'bool' = True, capture_stdout: 'bool' = True, auto_exit: 'bool' = False, max_return_chars: 'int' = 250000, always_persist: 'bool' = True, persist_spark_driver_file: 'bool' = False, in_memory: 'bool' = False, adapter: 'LogPersistenceAdapter | None' = None, spark_session: 'Any | None' = None, correlation_id: 'str | None' = None, notebook_name: 'str | None' = None, context: 'dict[str, Any] | None' = None, pipeline_name: 'str | None' = None, include_context_keys_in_records: 'list[str] | None' = None, strip_fields: 'frozenset' = frozenset(), suppress_stdout_tail: 'bool' = False)
+spark_quick_start.spark_logging.LogSession.__enter__ method(self) -> 'LogSession'
+spark_quick_start.spark_logging.LogSession.__exit__ method(self, exc_type, exc, tb)
+spark_quick_start.spark_logging.LogSession.auto_exit instance attribute
+spark_quick_start.spark_logging.LogSession.capture_spark instance attribute
+spark_quick_start.spark_logging.LogSession.capture_stdout instance attribute
+spark_quick_start.spark_logging.LogSession.context instance attribute
+spark_quick_start.spark_logging.LogSession.correlation_id instance attribute
+spark_quick_start.spark_logging.LogSession.debug method(self, msg: 'str', **kwargs: 'Any') -> 'None'
+spark_quick_start.spark_logging.LogSession.error method(self, msg: 'str', **kwargs: 'Any') -> 'None'
+spark_quick_start.spark_logging.LogSession.finalize method(self, success: 'bool' = True) -> 'str'
+spark_quick_start.spark_logging.LogSession.get_logs method(self) -> 'dict[str, Any]'
+spark_quick_start.spark_logging.LogSession.get_logs_json method(self) -> 'str'
+spark_quick_start.spark_logging.LogSession.in_memory instance attribute
+spark_quick_start.spark_logging.LogSession.info method(self, msg: 'str', **kwargs: 'Any') -> 'None'
+spark_quick_start.spark_logging.LogSession.lakehouse_dir instance attribute
+spark_quick_start.spark_logging.LogSession.level instance attribute
+spark_quick_start.spark_logging.LogSession.logger instance attribute
+spark_quick_start.spark_logging.LogSession.name_prefix instance attribute
+spark_quick_start.spark_logging.LogSession.note_error method(self, etype: 'str', message: 'str', tb_text: 'str') -> 'None'
+spark_quick_start.spark_logging.LogSession.notebook_name instance attribute
+spark_quick_start.spark_logging.LogSession.persist_spark_driver_file instance attribute
+spark_quick_start.spark_logging.LogSession.pipeline_name instance attribute
+spark_quick_start.spark_logging.LogSession.run_id instance attribute
+spark_quick_start.spark_logging.LogSession.spark_log_level instance attribute
+spark_quick_start.spark_logging.LogSession.start method(self) -> 'LogSession'
+spark_quick_start.spark_logging.LogSession.suppress_stdout_tail instance attribute
+spark_quick_start.spark_logging.LogSession.warning method(self, msg: 'str', **kwargs: 'Any') -> 'None'
+spark_quick_start.spark_logging.LogTableAdapter bases (spark_quick_start.spark_logging.LogPersistenceAdapter)
+spark_quick_start.spark_logging.LogTableAdapter class(spark: 'SparkSession', table_path: 'str') -> 'None'
+spark_quick_start.spark_logging.LogTableAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.LogTableAdapter.finalize_to_table method(self, row: 'LogRow') -> 'None'
+spark_quick_start.spark_logging.LogTableAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.LogTableAdapter.get_spark_session method(self) -> 'Any'
+spark_quick_start.spark_logging.LogTableAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.LogTableAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.LogTableAdapter.table_path instance attribute
+spark_quick_start.spark_logging.LogTableAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.NullPersistenceAdapter bases (spark_quick_start.spark_logging.LogPersistenceAdapter)
+spark_quick_start.spark_logging.NullPersistenceAdapter class()
+spark_quick_start.spark_logging.NullPersistenceAdapter.copy method(self, src: 'str', dst: 'str') -> 'None'
+spark_quick_start.spark_logging.NullPersistenceAdapter.get_notebook_name method(self) -> 'str | None'
+spark_quick_start.spark_logging.NullPersistenceAdapter.get_spark_session method(self) -> 'Any | None'
+spark_quick_start.spark_logging.NullPersistenceAdapter.mkdir method(self, path: 'str') -> 'None'
+spark_quick_start.spark_logging.NullPersistenceAdapter.notebook_exit method(self, value: 'str') -> 'None'
+spark_quick_start.spark_logging.NullPersistenceAdapter.write method(self, path: 'str', content: 'str') -> 'None'
+spark_quick_start.spark_logging.finalize_logs function(*, success: 'bool' = True, auto_exit: 'bool' = False) -> 'str'
+spark_quick_start.spark_logging.get_logger function(name: 'str | None' = None) -> 'logging.Logger'
+spark_quick_start.spark_logging.get_logs function() -> 'dict[str, Any]'
+spark_quick_start.spark_logging.get_logs_json function() -> 'str'
+spark_quick_start.spark_logging.init_logs function(*, lakehouse_dir: 'str' = 'Files/Logs', name_prefix: 'str' = 'notebook', level: 'Any' = 'INFO', capture_spark: 'bool' = False, capture_stdout: 'bool' = True, auto_exit: 'bool' = False, max_return_chars: 'int' = 250000, always_persist: 'bool' = True, persist_spark_driver_file: 'bool' = False, in_memory: 'bool' = False, adapter: 'LogPersistenceAdapter | None' = None, spark_session: 'Any | None' = None, correlation_id: 'str | None' = None, notebook_name: 'str | None' = None, context: 'dict[str, Any] | None' = None, pipeline_name: 'str | None' = None, include_context_keys_in_records: 'list[str] | None' = None, suppress_stdout_tail: 'bool' = False) -> 'LogSession'
+spark_quick_start.spark_logging.install_error_capture function(auto_exit: 'bool' = False) -> 'None'
+spark_quick_start.spark_logging.python_to_spark_level function(level: 'Any') -> 'str'

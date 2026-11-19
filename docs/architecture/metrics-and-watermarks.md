@@ -82,6 +82,14 @@ SCD writer and stated without a read by a Data Vault one; and when no step has o
 the orchestrator reads the target itself, one existence check and one full-table aggregation.
 `""` means a table that exists and is empty.
 
+Whichever step is chosen, one rule applies last: the watermark moves past the batch only when a
+writer wrote it (F232). When the pipeline halted, or a registered `SCDMetricsProvider` did not
+run, `hwm_value_after` is set to `hwm_value_before`, so a caller that stores it reads the batch
+again rather than past it. That makes `hwm_before` the value a halted run reports, and a step
+that owns the watermark sets it to the watermark it was given. Before the steps run, the
+orchestrator resets every step's counts and watermark to `None`, so a second `run()` on one
+orchestrator cannot report the last run's (F234).
+
 Three consequences follow from how the values are read:
 
 - **The SCD writer's watermark is a full-table maximum.** `get_high_watermark` aggregates the

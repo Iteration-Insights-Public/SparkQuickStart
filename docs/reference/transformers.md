@@ -11,8 +11,8 @@ pipeline runs, never passed to a constructor. The load-context fields the transf
 are on the [load-context reference](load-context.md).
 
 Five SCD-specific steps were renamed with an `SCD` prefix (backlog F155), so the Data Vault steps
-can be named by their style alike. The old names still import, each raising a
-`DeprecationWarning` that names the new one, and are removed in 0.5.0. A step's stage name in
+can be named by their style alike. The old names imported with a `DeprecationWarning` until
+0.6.0, which removed them: importing one now raises `ImportError`. A step's stage name in
 `ExecutionResult.stages` is its class name, so it changed with it.
 
 | Old name | New name |
@@ -41,7 +41,7 @@ parameters.
 
 | Name | Kind | Meaning |
 |---|---|---|
-| `StagingTransformer` | source, `HWMProvider` | Runs the staging notebooks and reads the staged table they produced as `state.df`. Reports `source_count` and `target_count` from the notebooks' own write metrics, with no extra Spark action. It reports a watermark only with a load-context [`hwm_context`](load-context.md#hwmcontext), and leaves its three `HWMProvider` attributes `None` without one: the latest `hwm_column_name` among the staged rows, one Spark action, and `ValueError` when they lack that column. |
+| `StagingTransformer` | source, `HWMProvider` | Runs the staging notebooks and reads the staged table they produced as `state.df`. Reports `source_count` and `target_count` from the notebooks' own write metrics, with no extra Spark action. It reports a watermark only with a load-context [`hwm_context`](load-context.md#hwmcontext), and leaves its three `HWMProvider` attributes `None` without one: the latest `hwm_column_name` among the staged rows, one Spark action, and `ValueError` when they lack that column. Raises `ValueError` when the load context has no staging phases, which validation allows when a `source_context` names another source. |
 | `DQDTransformer` | source, `HWMProvider` | Reads one source through the adapter and applies a [DQD](dqd-definition.md)'s filters, transformations and selection, row by row. With an `hwm_context`, filters by it and reports the latest `hwm_column_name` and, as `source_count`, the rows it passed on, both from one Spark action (over the scratch table when `dqd_context.eager_materialize_source` is true, in which case the step writes a Delta table at `<staging_table_path>_<id>_0_dqd` first, see [Tables the library creates](load-context.md#tables-the-library-creates)); without it, `source_count` is not computed and the result shows 0. Raises `DQDDefinitionError` naming the entry for a malformed expression or a missing column, before the source is read for a malformed one. |
 | `ConditionalSourceTransformer` | source | Runs one of two source transformers, chosen by a predicate when the pipeline runs. Built by `.set_source()`. |
 | `SCDTargetTableTransformer` | process | Reads the target table's current-flag rows into `state.frames["target"]`; when the table does not exist yet it leaves the key absent and sets `state.target_exists` to `False` (`True` otherwise). `state.df` passes through. |
@@ -49,6 +49,7 @@ parameters.
 | `SCDChangeDetectorTransformer` | process | Classifies each staged row as new, changed or deleted against `state.frames["target"]` and drops unchanged rows. Adds the hash, version and row-key columns and the internal routing columns. Hashes columns in alphabetical order. A source delete, or a `Full` load's absence, of a key whose current target row is already deleted is dropped; a NULL target flag counts as not deleted. Raises `ValueError` when `state.df` already has the hash or version column, when `scd_type` is not `scd1` or `scd2`, when the business-key or source deleted-flag column is missing, and when a `Full` load has an empty source and a non-empty target. |
 | `SCDGracefulChangeDetectorTransformer` | process | As `SCDChangeDetectorTransformer`, but hashes columns in `staging_table_schema` order and drops trailing NULL columns from the hash, so a new nullable column does not version every row. Raises `ValueError` when `staging_table_schema` is not set. |
 | `DVHubTargetTransformer` | process | Data Vault hub loads only (`scd_type` `dv_hub`). Reads the hub's keys that the staged batch carries into `state.frames["target"]`, a semi-join whatever the `load_type`, since a hub never deletes; when the hub does not exist, the key is absent and `state.target_exists` is `False`. Lazy: no Spark action of its own. |
+| `KeyMergeTransformer` | process | Landing loads only (`scd_type: landing`). Keeps the latest state of each key in the target: the batch's rows of one key reduced to the latest by `hwm_context.hwm_column_name`, stamped with the load time in `scd_context.load_ts_column`, merged on `business_key_column`, a stored row updated only by a newer one. Adds a column the table lacks, refuses one whose type changed, never deletes; an empty first batch creates no table. Reports `inserted` and `updated` from the commit, and no watermark. Spark actions: with `check_keys`, one aggregation over the batch; `isEmpty()` on a first load; otherwise a read of the table's existence, schema and latest version, the MERGE, and one history read for the counts. |
 | `DVHubWriterTransformer` | process, `HWMProvider` | Data Vault hub loads only. Inserts the staged rows whose key the hub lacks, every staged column kept, stamped with `RecordSource`, `LoadTS` (the run's load time, `global_context.load_timestamp`, any value: a backfilled one included, as the key is first seen then), `LoadEndTS` (the write's start; with a backfilled load time it minus `LoadTS` is not a duration), the correlation id and, when named, the pipeline run id; never updates. Creates the hub, without clustering (see [Load a Data Vault entity](../guides/load-a-data-vault-entity.md)), with `PlatformAdapter.write_delta_create` when absent, which refuses a table already there, otherwise an insert-only MERGE on the key, retried on a concurrent append. Seals the hash settings at the first write and refuses a load whose settings differ (`ValueError`). Reports `inserted` from the commit, `updated` 0, and this run's `LoadTS` as `hwm_after` with no `hwm_before`. |
 | `DVLinkTargetTransformer` | process | Data Vault link loads only (`scd_type` `dv_link`). Reads the link's keys that the staged batch carries into `state.frames["target"]`, by a semi-join whatever the `load_type`; a link never deletes, so it is never read whole. When the link does not exist, the key is absent and `state.target_exists` is `False`. No Spark action of its own. |
 | `DVLinkWriterTransformer` | process, `HWMProvider` | Data Vault link loads only. Inserts the staged relationships whose link key the link lacks, every staged column kept, stamped as a hub row is, `LoadTS` included; never updates. Does not check that the link's hub keys exist in their hubs: it relies on run order (load every hub a link references before the link), and an orphan key is loaded as is. Creates the link, without clustering, with `PlatformAdapter.write_delta_create` when absent, otherwise an insert-only MERGE on the link key alone, retried on a concurrent append. Seals the hash settings at the first write and refuses a load whose settings differ (`ValueError`). Reports `inserted` from the commit, `updated` 0, and its run's `LoadTS` as `hwm_after`. |
@@ -67,13 +68,30 @@ parameters.
 | `DebugTransformer` | process | Prints a Markdown sample of `state.df` and of named frames to stdout; never raises and never changes the state. Each frame printed costs a `count()`. |
 | `MetricsChartTransformer` | always runs | Prints an ASCII bar chart of each stage's `duration_ms`, slowest first. Add it last. |
 | `PlanReportTransformer` | always runs | Prints each stage's captured query plan; prints a notice instead when `capture_plans` is off. Add it last. |
-| `SourceTransformer` | base class | Subclass it for a source: implement `_produce(ctx)`. Raises `ValueError` when `state.df` lacks the business-key column, or the source-system column when `source_system_from_source` is set. The deleted-flag column is optional: `SCDChangeDetectorTransformer` reads it as the delete signal when present and writes it itself. |
+| `SourceTransformer` | base class | Subclass it for a source: implement `_produce(ctx)`. Raises `ValueError` when `state.df` lacks the business-key column, or the source-system column when `source_system_from_source` is set. The deleted-flag column is optional: `SCDChangeDetectorTransformer` reads it as the delete signal when present and writes it itself. A subclass that reads a `source_context` sets the class attribute `source_kind` to its kind; the orchestrator then refuses, before any source runs, a load context whose `source_context` is absent or names another kind. |
 | `ProcessTransformer` | base class | Subclass it for a step: implement `_run(state, ctx)`. |
 | `AlwaysRunTransformer` | base class | Subclass it for a reporting step that must run on a halted pipeline. It must not change the state. |
 | `HWMProvider` | protocol | Declares the high watermark a transformer reports. |
 | `SCDMetricsProvider` | protocol | Declares the insert and update counts a writer reports. |
 | `SourceMetricsProvider` | protocol | Declares the row counts a source reports. |
 | `LoadContext` | frozen dataclass | The parsed load context every transformer receives as `ctx`. |
+
+## `KeyMergeTransformer`
+
+Every parameter is keyword-only. The orchestrator refuses it, before any source runs, in a load
+whose `scd_context.scd_type` is not `landing`.
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `check_keys` | `bool` | `True` | Refuse a batch with a NULL key or NULL ordering value, naming the column and the number of rows, at the cost of one aggregation over the batch. A NULL key matches no stored row, so it would be inserted again on every run. |
+
+The ordering column must be a timestamp, a date or a number; any other type is refused before
+anything is written, so cast an ISO-8601 string in the source step. Two rows of one key with one
+ordering value are settled by a hash of their other columns: the same winner on every run, but an
+arbitrary one between two different rows. The update is guarded by `>`, so a row that comes back
+with the same ordering value and different content is not applied. With a random key, such as a
+GUID, the MERGE reads the whole table on every run; a partitioned table's partition column belongs
+in the key.
 
 ## `SCDChangeDetectorTransformer`
 
@@ -125,7 +143,7 @@ Every parameter is keyword-only and inherited from `SCDChangeDetectorTransformer
 
 | Parameter | Type | Default | Meaning |
 |---|---|---|---|
-| `dqd_definition` | `dict[str, Any] \| None` | `None` | A definition in `dqd_context`'s shape, used instead of the load context's. The load context must still have a `dqd_context` or staging stages to pass validation; when neither this nor `dqd_context` is set, `ValueError`. |
+| `dqd_definition` | `dict[str, Any] \| None` | `None` | A definition in `dqd_context`'s shape, used instead of the load context's. The load context must still have a `dqd_context`, staging stages or a `source_context` to pass validation; when neither this nor `dqd_context` is set, `ValueError`. |
 
 ## `ConditionalSourceTransformer`
 
@@ -135,6 +153,9 @@ Every parameter is keyword-only and inherited from `SCDChangeDetectorTransformer
 | `source_if_true` | `SourceTransformer` | required | The source run when the predicate is true. |
 | `source_if_false` | `SourceTransformer` | required | The source run when the predicate is false. |
 | `label` | `str \| None` | `None` | The name used in log messages. When `None`, the two sources' class names. |
+
+Its property `sources` is `(source_if_true, source_if_false)`; the orchestrator checks the
+`source_kind` of both before either runs.
 
 ## `ConditionalTransformer`
 
@@ -182,6 +203,7 @@ it.
 | `hwm_ctx` | `HWMContext` or `None` | `None` | The `hwm_context` section when the load has one: see [`HWMContext`](load-context.md#hwmcontext). |
 | `extensions_ctx` | `ExtensionsContext` | an empty one | The `extensions_context` section, never `None`: see [`ExtensionsContext`](load-context.md#extensionscontext). |
 | `platform_ctx` | `PlatformContext` | an empty one | The two lakehouse paths the library resolved, never `None`: see [`PlatformContext`](load-context.md#platformcontext). |
+| `source_ctx` | `SourceContext` or `None` | `None` | The `source_context` section when the load has one: see [`SourceContext`](load-context.md#sourcecontext). The last field, so a `LoadContext` built positionally keeps its meaning. |
 
 ## `HWMProvider`
 
@@ -194,7 +216,7 @@ source registered before the writer wins. Set them inside `_run()` or `_produce(
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `hwm_before` | `str \| None` | required | The watermark before this run. |
+| `hwm_before` | `str \| None` | required | The watermark before this run. It is also what the run reports as `hwm_value_after` when the pipeline halted or a registered writer did not run (F232), so a step that owns the watermark sets it to the watermark it was given; `None` sends the caller back to a full read. |
 | `hwm_after` | `str \| None` | required | The watermark after this run. It only selects the watermark source; the proof that a writer ran is its `SCDMetricsProvider` counts (F117). |
 | `hwm_column` | `str \| None` | required | The column the watermark is read from. The `NativeSCD*` writers use the effective-from column; the Data Vault writers use `load_ts_column`; `StagingTransformer` and `DQDTransformer` use `hwm_context.hwm_column_name`. |
 

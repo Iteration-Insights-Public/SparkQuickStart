@@ -251,6 +251,14 @@ def _documents(root: Path) -> list[Path]:
     return readme + pages
 
 
+def _linked_documents(root: Path) -> list[Path]:
+    """_documents(), plus the other Markdown files at the root: CONTRIBUTING, SUPPORT, SECURITY and
+    the rest are linked from README and link onward, so a broken link in one is a reader's dead end
+    (F228). Kept apart from _documents(), whose other users check pages under docs/ only."""
+    rest = sorted(p for p in root.glob("*.md") if p.name != _INDEX and not p.is_symlink())
+    return _documents(root) + rest
+
+
 def _local_target(root: Path, page: Path, dest: str) -> str | None:
     """The repository-relative path *dest* points at from *page*, or None for a URL or nothing.
 
@@ -310,9 +318,9 @@ def _link_problem(root: Path, page: Path, dest: str) -> str | None:
 
 
 def _link_problems(root: Path) -> list[str]:
-    """Every relative link or image in README.md and docs/ that a reader would find broken."""
+    """Every relative link or image in the root Markdown files and docs/ that a reader would find broken."""
     problems = []
-    for page in _documents(root):
+    for page in _linked_documents(root):
         label = page.relative_to(root).as_posix()
         try:
             text = page.read_text(encoding="utf-8")
@@ -326,9 +334,10 @@ def _link_problems(root: Path) -> list[str]:
 
 
 def test_every_relative_link_and_image_resolves() -> None:
-    """F55 — a link or image in README.md or docs/ lands on a file and anchor that exist."""
-    documents = _documents(_arch.ROOT)
+    """F55, F228 — a link or image in a root Markdown file or docs/ lands on a file and anchor that exist."""
+    documents = _linked_documents(_arch.ROOT)
     assert _arch.ROOT / _INDEX in documents, "the root README.md is not scanned"
+    assert _arch.ROOT / "SUPPORT.md" in documents, "the root community files are not scanned"
     assert len(documents) >= 5, "found almost no documents; the scan is looking in the wrong place"
     problems = _link_problems(_arch.ROOT)
     assert not problems, f"broken relative links or images: {problems}"
@@ -781,8 +790,9 @@ def test_the_context_schema_is_read_from_the_code() -> None:
     schema = _examples.context_schema()
     sections = {"global_context", "staging_context", "scd_context", "runtime_context", "logging_context",
                 "hwm_context", "dqd_context"}
-    # `extensions_context` is read whole and holds the user's keys, so it has none recorded of its own.
-    assert schema[""] == sections | {"extensions_context"}, f"the recorded sections are not the load context's: {schema['']}"
+    # `extensions_context` and `source_context` are read whole and hold the user's keys (beside
+    # `source_context.kind`), so they have none recorded of their own.
+    assert schema[""] == sections | {"extensions_context", "source_context"}, f"the recorded sections are not the load context's: {schema['']}"
     empty = [path for path in [*sections, "staging_context.stages[]"] if not schema.get(path)]
     assert not empty, f"the recording found no fields for {empty}"
     samples = {"runtime_context": "serverless", "scd_context": "business_key_column",
@@ -841,6 +851,12 @@ def test_every_example_check_can_fail() -> None:
         wrong["the valid load context"] = js(good)
     if js({"not": "a load context"}):
         wrong["a JSON block that is not a load context"] = js({"not": "a load context"})
+    sources = {  # F233: the top level of `source_context` is the library's
+        "a source_context with kind alone": {"kind": "k"},
+        "a source_context with the step's keys under properties": {"kind": "k", "properties": {"vault": "v"}},
+        "properties holding the library's names": {"kind": "k", "properties": {"kind": 1, "properties": {"a": [1]}}},
+    }
+    wrong |= {label: got for label, body in sources.items() if (got := js({**good, "source_context": body}))}
     json_mutations = {
         "an unknown section": js({**good, "nonsense_context": {}}),
         "an unknown field": js({**good, "runtime_context": {"serverles": True}}),
@@ -849,6 +865,8 @@ def test_every_example_check_can_fail() -> None:
         "a section that is not an object": js({**good, "runtime_context": []}),
         "stages that are not a list": js({**good, "staging_context": {"stages": {}}}),
         "a JSON block that does not parse": js(None, raw='{"global_context": {},}'),
+        "a step's key beside kind": js({**good, "source_context": {"kind": "k", "vault": "v"}}),
+        "properties that are not an object": js({**good, "source_context": {"kind": "k", "properties": []}}),
     }
     wrong |= {label: got for label, got in json_mutations.items() if len(got) != 1}
     legacy = f"docs/{_LEGACY[0]}"
@@ -992,19 +1010,26 @@ _LOAD_CONTEXT_CONTAINERS = {
     "LoggingContext": "logging_context",
     "HWMContext": "hwm_context",
     "DQDContext": "dqd_context",
-    # The two sections below are not read key by key: the user's `extensions_context` is read whole
-    # and `platform_context` is built by the library. Their rows are the class's public surface.
+    # The sections below are not read key by key: the user's `extensions_context` and
+    # `source_context` are read whole, beside `source_context.kind`, and `platform_context` is
+    # built by the library. Their rows are the class's public surface.
     "ExtensionsContext": "extensions_context",
+    "SourceContext": "source_context",
     "PlatformContext": "platform_context",
 }
 
 
 def _extension_and_platform_surface() -> dict[str, set[str]]:
-    """What the page lists for the two classes that are not read key by key: each one's public
+    """What the page lists for the classes that are not read key by key: each one's public
     names, the fields of the frozen dataclass and the methods of the mapping view."""
-    from spark_quick_start.orchestration.models import ExtensionsContext, PlatformContext
+    from spark_quick_start.orchestration.models import (
+        ExtensionsContext,
+        PlatformContext,
+        SourceContext,
+    )
 
     return {"extensions_context": {n for n in dir(ExtensionsContext) if not n.startswith("_")},
+            "source_context": {n for n in dir(SourceContext) if not n.startswith("_")},
             "platform_context": _class_members(PlatformContext)}
 
 
@@ -1825,7 +1850,7 @@ def _defined_public_names(module: types.ModuleType) -> tuple[set[str], list[str]
     every public name whose value is a class or function whose `__module__` is the package or
     one of its submodules.
 
-    Left out: private names, modules, `None` (a filtered build's placeholder), builtin functions
+    Left out: private names, modules, `None` (a source copy's missing-file placeholder), builtin functions
     (a package cannot define one), typing constructs (`TYPE_CHECKING`, aliases, unions,
     `TypeVar`s and the like) and `__future__` features, and classes and functions from outside
     this library. Reported: a class or function whose `__module__` is elsewhere in this library,
@@ -1864,7 +1889,7 @@ def test_spark_logging_declares_its_public_names() -> None:
     """F121 — `spark_logging` names its surface in `__all__`, as `adapters` does.
 
     On the full trunk `__all__` holds exactly what the package defines publicly, once each.
-    Leaving out an adapter a filtered build removed is a branch the trunk never takes; it is
+    Leaving out an adapter file a source copy lacks is a branch the trunk never takes; it is
     simulated in tests/unit/test_optional_persistence_imports.py.
     """
     from spark_quick_start import spark_logging
@@ -1961,7 +1986,7 @@ def test_the_logging_readers_can_fail() -> None:
     probe.json = json  # a module
     probe.Logger = logging.Logger  # a class another package defines
     probe.Any = typing.Any  # a typing construct
-    probe.Filtered = None  # a filtered build's placeholder
+    probe.Filtered = None  # a source copy's missing-file placeholder
 
     def helper() -> None: ...
 
@@ -2326,7 +2351,9 @@ _DECISIONS = _DOCS / "architecture" / "decisions"
 def _decision_index_problems(records: list[str], index_text: str) -> list[str]:
     """Every way docs/architecture/decisions/README.md departs from the records beside it: a
     record with no row, one with two, a row naming no record here, a row reaching a record in
-    another directory, an impossible date, and rows out of date order.
+    another directory, an impossible date, and rows out of date order within one table. The
+    internal records have a table of their own, strip-marked for the public export (F225), so
+    the order is each table's, not the page's.
 
     A row is a link in the first cell of a table body row, read in document order with the
     Markdown parser; a mention in prose or in a later cell is not a row (F79 adversary). A row is
@@ -2339,14 +2366,18 @@ def _decision_index_problems(records: list[str], index_text: str) -> list[str]:
     records = [name for name in records if _RECORD.fullmatch(name)]
     problems: list[str] = []
     rows: list[str] = []
-    for dest in _docs.table_row_links(index_text):
-        path = dest.split("#")[0].removeprefix("./")
-        if not dated.match(posixpath.basename(path)):
-            continue
-        if path != posixpath.basename(path):
-            problems.append(f"the row `{dest}` reaches a record outside this directory")
-            continue
-        rows.append(path)
+    tables: list[list[str]] = []
+    for table in _docs.table_row_links_by_table(index_text):
+        tables.append([])
+        for dest in table:
+            path = dest.split("#")[0].removeprefix("./")
+            if not dated.match(posixpath.basename(path)):
+                continue
+            if path != posixpath.basename(path):
+                problems.append(f"the row `{dest}` reaches a record outside this directory")
+                continue
+            rows.append(path)
+            tables[-1].append(path)
     problems += [f"`{name}` has no row in the decisions index" for name in sorted(set(records) - set(rows))]
     problems += [f"`{name}` has {rows.count(name)} rows" for name in sorted(set(rows)) if rows.count(name) > 1]
     problems += [f"the index has a row for `{name}`, which is not a record here" for name in sorted(set(rows) - set(records))]
@@ -2355,9 +2386,10 @@ def _decision_index_problems(records: list[str], index_text: str) -> list[str]:
             datetime.date.fromisoformat(name[:10])
         except ValueError:
             problems.append(f"`{name}` is named for a date that does not exist")
-    dates = [name[:10] for name in rows]
-    if dates != sorted(dates):
-        problems.append(f"the index is not in date order, oldest first: {rows}")
+    for table in tables:
+        dates = [name[:10] for name in table]
+        if dates != sorted(dates):
+            problems.append(f"a table of the index is not in date order, oldest first: {table}")
     return problems
 
 
@@ -2381,6 +2413,8 @@ def test_the_decision_index_check_can_fail() -> None:
     same_day = ["2026-01-01-z.md", "2026-01-01-a.md"]
     assert _decision_index_problems(same_day, head + "| [z](2026-01-01-z.md) |\n| [a](2026-01-01-a.md) |\n") == [], \
         "one day's order was judged"
+    two_tables = head + "| [b](2026-02-01-b.md) |\n\n" + head + "| [a](2026-01-01-a.md) |\n"
+    assert _decision_index_problems(records, two_tables) == [], "the order was judged across tables (F225)"
     mutations = {
         "a record with no row": good.replace("| [b](./2026-02-01-b.md) | supersedes [a](2026-01-01-a.md) |\n", ""),
         "a record only in prose": good.replace("| [b](./2026-02-01-b.md) | supersedes [a](2026-01-01-a.md) |\n", "")

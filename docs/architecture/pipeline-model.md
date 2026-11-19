@@ -86,7 +86,9 @@ A step stops the pipeline by returning `state.with_halted(reason)`, not by raisi
 `CandidateGuardTransformer` does this when there are no candidates. Every later process step then
 passes the state through, and `run()` reports `early_exit` and `early_exit_reason` in a result
 whose `status` is still `"success"`. An exception is the other way out, and it becomes a result
-with `status` `"error"`.
+with `status` `"error"`. For the watermark, the two are alike: since no writer wrote the batch,
+`hwm_value_after` stays at `hwm_value_before`, as it does when a registered writer did not run,
+so a caller that stores it reads the batch again rather than past it (F232).
 
 ## Services are injected, not constructed
 
@@ -137,10 +139,8 @@ other. The routing column `_change_type` and the `"target"` frame are shared by 
 ## Why it is this shape
 
 The immutable state, the template methods and the injected services came before the dated
-records; what the audit found them to guarantee, and the findings that tightened them (F2, F3,
-F24 and F29 among them), are in the
-[2026-09-25 architecture audit](decisions/2026-09-25-architecture-audit.md) and in each finding's
-log in the backlog.
+records.
+
 
 ## See also
 
